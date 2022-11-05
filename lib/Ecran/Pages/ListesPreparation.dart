@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:app/Ecran/Pages/AucuneDonnes.dart';
 import 'package:app/Ecran/Pages/ListesTop1000.dart';
 import 'package:app/Ecran/Pages/Relever.dart';
+import 'package:app/Ecran/Pages/index.dart';
 import 'package:app/Ecran/Pages/two_letter_icon.dart';
 import 'package:app/Ecran/modele/dataPreparation.dart';
 import 'package:app/Ecran/modele/dataTop1000.dart';
@@ -28,7 +29,6 @@ class ListesPreparation extends StatefulWidget {
 
 class _ListesPreparationState extends State<ListesPreparation> {
   List<Preparation> listes = [];
-  Preparation prepTop = Preparation();
   String news = "";
   String news1 = "";
   int id = 0;
@@ -50,7 +50,7 @@ class _ListesPreparationState extends State<ListesPreparation> {
   //   EasyLoading.instance.dismissOnTap = false;
   // }
 
-  String ip = "197.7.2.3";
+  String ip = "197.7.2.1";
 
   Future chargeArticle() async {
     Database db = await DatabaseHelper().database;
@@ -136,11 +136,19 @@ class _ListesPreparationState extends State<ListesPreparation> {
 
         chargeArticle();
         produitlist.forEach((element) async {
-          Preparation prepa = Preparation.id(int.parse(element["id_releve"]), element["libelle_releve"], element["lib_plus_releve"],
-              element["dt_maj_releve"], int.parse(element["enseigne_releve"]), 0, 0);
+          Preparation prepa = Preparation.id(
+              int.parse(element["id_releve"]),
+              element["libelle_releve"],
+              (element["date_releve"] == null) ? "" : element["date_releve"],
+              (element["lib_plus_releve"] == null) ? "" : element["lib_plus_releve"],
+              element["dt_maj_releve"],
+              int.parse(element["enseigne_releve"]),
+              0,
+              0);
 
           try {
             await db.insert("preparation", prepa.toMap());
+            print(prepa.description);
           } catch (e) {
             await EasyLoading.dismiss();
           }
@@ -149,25 +157,12 @@ class _ListesPreparationState extends State<ListesPreparation> {
         recuperer();
       } else {
         //print("dat non recu");
+
       }
     } catch (e) {
       EasyLoading.showError('Connection error', duration: Duration(seconds: 1));
       //print('connecx timeout');
     }
-
-    // try {
-    //   await db.insert("preparation", prep1.toMap());
-    // } catch (e) {}
-
-    // try {
-    //   await db.insert("preparation", prep2.toMap());
-    // } catch (e) {}
-    // try {
-    //   await db.insert("preparation", prep3.toMap());
-    // } catch (e) {}
-    //await db.rawQuery("DELETE FROM preparation");
-    //int id = await db.rawInsert("INSERT INTO preparation(libele,prix,gencode,image,magasin) VALUES('coca',2225,656565665,'jhuik','oilkhgt')");
-    //"INSERT INTO preparation(id,libele,prix,gencode,image,magasin) VALUES('${article.getLibele}','${article.getPrix}','${article.getGencode}','${article.getImage}','${article.getMagasin}')");s
   }
 
   Future recuperer() async {
@@ -213,18 +208,10 @@ class _ListesPreparationState extends State<ListesPreparation> {
     recuperer();
   }
 
-  Widget acc() {
-    if (top == false) {
-      return preparation();
-    } else {
-      return top1000();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: acc(),
+      child: preparation(),
     );
   }
 
@@ -273,6 +260,7 @@ class _ListesPreparationState extends State<ListesPreparation> {
               child: (listes.isEmpty)
                   ? AucuneDonnes()
                   : ListView.builder(
+                      physics: BouncingScrollPhysics(),
                       itemCount: listes.length,
                       itemBuilder: (context, index) {
                         Preparation prep = listes[index];
@@ -293,22 +281,23 @@ class _ListesPreparationState extends State<ListesPreparation> {
                               Padding(padding: EdgeInsets.all(2)),
                               SlidableAction(
                                 onPressed: (context) {
-                                  alerte(prep.description);
+                                  alerte(prep);
                                 },
-                                label: "Description",
+                                label: "Plus",
                                 backgroundColor: Colors.blue,
                                 icon: Icons.description,
                               ),
                             ]),
                             child: ListTile(
                                 onTap: () {
-                                  setState(() {
-                                    top = true;
-                                    id = prep.id_prep;
-                                  });
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => Index.top(prep: prep),
+                                      ));
                                 },
-                                title: Center(child: Text(prep.libelle_prep + prep.etat.toString())),
-                                subtitle: Center(child: Text(prep.design_magasin + prep.etat_attente.toString())),
+                                title: Text(prep.libelle_prep),
+                                subtitle: Center(child: Text(prep.design_magasin)),
                                 leading: TwoLetterIcon(prep.libelle_prep),
                                 trailing: icone(prep.etat, prep.etat_attente)),
                           ),
@@ -319,13 +308,7 @@ class _ListesPreparationState extends State<ListesPreparation> {
     );
   }
 
-  ListesTop1000 top1000() {
-    return ListesTop1000(
-      id: id,
-    );
-  }
-
-  Future alerte(String text) async {
+  Future alerte(Preparation prep) async {
     return showDialog(
         context: context,
         barrierDismissible: true,
@@ -335,9 +318,26 @@ class _ListesPreparationState extends State<ListesPreparation> {
               "Description",
               textAlign: TextAlign.center,
             ),
-            content: Text(
-              text,
-              textAlign: TextAlign.center,
+            content: Container(
+              height: (prep.description.toString().length > 100) ? MediaQuery.of(context).size.height / 5 : MediaQuery.of(context).size.height / 8,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Date creation : ${prep.date_prep} "),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  Text("Libelle : ${prep.libelle_prep}"),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  (prep.description == "") ? SizedBox() : Text("Description : ${prep.description}", style: TextStyle(wordSpacing: 2, height: 1.5)),
+                  SizedBox(
+                    height: 5,
+                  ),
+                ],
+              ),
             ),
             actionsAlignment: MainAxisAlignment.end,
             actions: [

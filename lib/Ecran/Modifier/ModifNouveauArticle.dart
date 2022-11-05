@@ -12,6 +12,7 @@ import 'package:app/Ecran/modele/dataMagasin.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -28,18 +29,19 @@ class ModifNouveauArticle extends StatefulWidget {
 }
 
 class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
-  int gencode = 0;
+  String gencode = "";
   int id_enseigne = 0;
-  int id_enseigne_value_drowp = 0;
   int id = 0;
   int prix = 0;
   String libele = "";
+  String description = "";
   String imageString = "rien";
   File? fichierImage;
 
   TextEditingController codebarCcontroller = TextEditingController();
   TextEditingController prixController = TextEditingController();
   TextEditingController libeleController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
 
   List<DropdownMenuItem<String?>> listesvrai = [];
   List<Container> listesvraii = [];
@@ -67,19 +69,29 @@ class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
 
   void Modifier() {
     if (formValide.currentState!.validate()) {
-      Article article = Article.modif(this.id, this.libele, this.prix, this.gencode, this.imageString, this.id_enseigne_value_drowp);
-      DataArticle().UpdateArticle(article);
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Index(2),
-          ));
+      if (pad != 0) {
+        setState(() {
+          bas = 0;
+          pad = 0.7;
+        });
+      } else {
+        Article article = Article.modif(this.id, this.libele, this.prix, this.gencode, this.description, this.imageString, this.id_enseigne);
+        DataArticle().UpdateArticle(article);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Index(2),
+            ));
+      }
     } else {}
   }
 
   showImage(String img) {
     return (imageString == "")
-        ? null
+        ? Icon(
+            Icons.broken_image,
+            size: 100,
+          )
         : Image.memory(
             base64Decode(img),
             fit: BoxFit.cover,
@@ -111,20 +123,14 @@ class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
       barcodeLocal = await FlutterBarcodeScanner.scanBarcode("#DF1C5D", "Annuler", true, ScanMode.BARCODE);
       if (barcodeLocal != "-1") {
         setState(() {
-          gencode = int.parse(barcodeLocal);
+          gencode = barcodeLocal;
           codebarCcontroller.text = gencode.toString();
         });
       } else {
-        setState(() {
-          gencode = 0;
-          codebarCcontroller.text = "";
-        });
+        setState(() {});
       }
     } catch (e) {
-      setState(() {
-        gencode = 0;
-        codebarCcontroller.text = "";
-      });
+      setState(() {});
     }
   }
 
@@ -212,22 +218,29 @@ class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
     );
   }
 
+  bool tap = false;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     recuperer();
     id_enseigne = widget.article.id_enseigne;
+
     prix = widget.article.prix;
     gencode = widget.article.gencode;
     libele = widget.article.libele;
+    description = widget.article.description;
 
     imageString = widget.article.image;
     id = widget.article.id;
     libeleController.text = widget.article.libele;
+    descriptionController.text = widget.article.description;
     prixController.text = widget.article.prix.toString();
     codebarCcontroller.text = widget.article.gencode.toString();
   }
+
+  double pad = 0;
+  double bas = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -235,13 +248,12 @@ class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
       appBar: AppBar(
         title: Text("Modifier Article"),
       ),
-      body: Container(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height - 10,
-        padding: EdgeInsets.all(16),
-        child: Form(
-          key: formValide,
-          child: SingleChildScrollView(
+      body: SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
+        child: Container(
+          padding: EdgeInsets.all(30),
+          child: Form(
+            key: formValide,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -250,7 +262,7 @@ class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
                     Container(
                       width: 180,
                       height: 180,
-                      decoration: BoxDecoration(color: Color.fromRGBO(158, 158, 158, 1), borderRadius: BorderRadius.circular(100)),
+                      decoration: BoxDecoration(color: Color.fromARGB(255, 216, 211, 211), borderRadius: BorderRadius.circular(100)),
                       child: ClipOval(
                           child: (fichierImage == null)
                               ? showImage(widget.article.image)
@@ -357,9 +369,10 @@ class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
                     items: listesvrai,
                     hint: Text("Choix Magasin"),
                     onChanged: (value) {
-                      id_enseigne_value_drowp = int.parse(value.toString());
+                      id_enseigne = int.parse(value.toString());
                       setState(() => id_enseigne);
                     },
+
                     validator: (value) => a == 0 ? "Veuillez choisir un Magasin" : null,
                     decoration: InputDecoration(
                       contentPadding: EdgeInsets.all(12),
@@ -377,72 +390,121 @@ class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
                   ),
                 ),
                 Padding(padding: EdgeInsets.only(top: 20)),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    //TextButton(onPressed: onPressed, child: child,),
-                    TextButton.icon(
-                        style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(Colors.amber)),
-                        onPressed: () {
-                          BarcodeScanner();
-                        },
-                        icon: Icon(Icons.camera_alt),
-                        label: Text("Scan Barcode")),
-                    Text("==========="),
-                    Padding(padding: EdgeInsets.only(top: 10)),
-                    Container(
-                      width: 200,
-                      child: TextFormField(
-                        controller: codebarCcontroller,
-                        style: TextStyle(
-                          fontSize: 19,
-                        ),
-                        textAlign: TextAlign.center,
-                        autocorrect: false,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          contentPadding: EdgeInsets.only(top: 3),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
-
-                          //labelText: "Designation",
-                          hintText: "Barcode Generer",
-                        ),
-                        onChanged: (value) {
-                          try {
-                            gencode = int.parse(value);
-                          } catch (e) {
-                            //print("null gencode");
-                          }
-                        },
-                        validator: (value) => value!.isEmpty ? "Veuiller scanner le barcode" : null,
-                        onSaved: (newValue) {
-                          //nom = newValue!;
-                        },
-                        //onSubmitted: submit,
-                      ),
-                    )
-                  ],
-                ),
                 Container(
-                  margin: EdgeInsets.only(top: 10),
+                  padding: EdgeInsets.all(pad),
+                  color: pad == 0 ? null : Colors.redAccent,
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      TextButton.icon(
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStatePropertyAll(Colors.blue), foregroundColor: MaterialStatePropertyAll(Colors.white)),
-                          onPressed: () {
-                            Modifier();
-                            //recuperer();
+                      Container(
+                        height: 48.4,
+                        child: ElevatedButton(
+                          onPressed: () => BarcodeScanner(),
+                          child: Icon(Icons.camera_alt),
+                          style: TextButton.styleFrom(
+                              elevation: 0,
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.blue,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(1)))),
+                        ),
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width - (pad == 0 ? 124 : 125.7),
+                        child: TextFormField(
+                          controller: codebarCcontroller,
+                          validator: (value) {
+                            if (codebarCcontroller.text.isEmpty) {
+                              setState(() {
+                                bas = 0;
+                                pad = 0.7;
+                              });
+                            } else {
+                              setState(() {
+                                pad = 0;
+                              });
+                            }
                           },
-                          icon: Icon(Icons.update),
-                          label: Text("Modifier")),
-                      Padding(padding: EdgeInsets.all(5)),
-                      TextButton.icon(
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStatePropertyAll(Colors.red), foregroundColor: MaterialStatePropertyAll(Colors.white)),
+                          // textAlign: TextAlign.center,
+                          enabled: false,
+                          autocorrect: false,
+                          keyboardType: TextInputType.visiblePassword,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.only(left: 10),
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
+                            //contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+
+                            //labelText: "Nom",
+                            hintText: "Code barre",
+                          ),
+                          onChanged: (value) {
+                            //libele = value;
+                          },
+
+                          onTap: () {
+                            print("none");
+                          },
+
+                          onSaved: (newValue) {
+                            //nom = newValue!;
+                          },
+                          //onSubmitted: submit,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                errorScan(),
+                Stack(children: [
+                  Container(
+                    margin: EdgeInsets.only(top: 20),
+                    child: TextFormField(
+                      controller: descriptionController,
+                      style: TextStyle(fontSize: 19),
+                      autocorrect: false,
+                      onChanged: (value) {
+                        if (value.isEmpty) {
+                          setState(() {
+                            tap = false;
+                          });
+                        } else {
+                          setState(() {
+                            tap = true;
+                          });
+                        }
+                        setState(() {
+                          description = value;
+                        });
+                      },
+                      maxLines: 3,
+                      keyboardType: TextInputType.multiline,
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.all(10),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
+                      ),
+                    ),
+                  ),
+                  (tap == true)
+                      ? SizedBox()
+                      : Positioned(
+                          top: 45,
+                          left: MediaQuery.of(context).size.width / 3,
+                          child: Text(
+                            "Description",
+                            style: TextStyle(fontSize: 19, color: Color.fromARGB(140, 0, 0, 0)),
+                          ),
+                        )
+                ]),
+                Container(
+                  margin: EdgeInsets.only(top: 20, left: 25),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Container(
+                        height: 40,
+                        child: ElevatedButton(
                           onPressed: () {
                             Navigator.push(
                                 context,
@@ -451,16 +513,57 @@ class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
                                 ));
                             //recuperer();
                           },
-                          icon: Icon(Icons.cancel),
-                          label: Text("Annuler")),
+                          // ignore: sort_child_properties_last
+                          child: Text(
+                            "ANNULER",
+                            style: TextStyle(letterSpacing: 1),
+                          ),
+                          style: TextButton.styleFrom(
+                              elevation: 0,
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.redAccent,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(1)))),
+                        ),
+                      ),
+                      Container(
+                        height: 40,
+                        child: ElevatedButton(
+                          onPressed: () => Modifier(),
+                          // ignore: sort_child_properties_last
+                          child: Text(
+                            "MODIFIER",
+                            style: TextStyle(letterSpacing: 1),
+                          ),
+                          style: TextButton.styleFrom(
+                              elevation: 0,
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.blue,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(1)))),
+                        ),
+                      ),
+                      Padding(padding: EdgeInsets.all(5)),
                     ],
                   ),
-                )
+                ),
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  Container errorScan() {
+    if (pad != 0) {
+      return Container(
+        margin: EdgeInsets.only(top: 9, bottom: bas),
+        width: MediaQuery.of(context).size.width,
+        child: Text(
+          "Veuillez scanner le code bar",
+          style: TextStyle(color: Color.fromARGB(255, 235, 40, 26), fontSize: 12),
+        ),
+      );
+    }
+    return Container();
   }
 }

@@ -1,9 +1,9 @@
 // ignore_for_file: prefer_const_constructors, avoid_function_literals_in_foreach_calls, prefer_const_literals_to_create_immutables, unused_local_variable, non_constant_identifier_names, prefer_is_empty, unnecessary_null_comparison
 
+import 'package:app/Ecran/Pages/index.dart';
+import 'package:app/Ecran/modele/preparation.dart';
 import 'package:intl/intl.dart';
-import 'package:app/Ecran/Pages/Index.dart';
 import 'package:app/Ecran/modele/dataTop1000.dart';
-import 'package:app/Ecran/modele/magasin.dart';
 import 'package:app/Ecran/modele/releve.dart';
 import 'package:app/Ecran/modele/top1000.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -12,8 +12,8 @@ import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 class Relever extends StatefulWidget {
-  int id_prep;
-  Relever(this.id_prep);
+  Preparation prepatop = Preparation();
+  Relever(this.prepatop);
 
   @override
   State<Relever> createState() => _ReleverState();
@@ -39,12 +39,12 @@ class _ReleverState extends State<Relever> {
   void ajouter() {
     if (formValide.currentState!.validate()) {
       Releve releve = Releve.update(id_relever, prixController.text, dateTime());
-      DataTop1000().UpdateReleve(releve, widget.id_prep);
+      DataTop1000().UpdateReleve(releve, widget.prepatop.id_prep);
 
       Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => Index.top(widget.id_prep),
+            builder: (context) => Index.top(prep: widget.prepatop),
           ));
     } else {}
   }
@@ -66,7 +66,7 @@ class _ReleverState extends State<Relever> {
 
   Future<List<Releve>> onTapSearch(String query) async {
     List<Top1000> listesToutes = [];
-    await DataTop1000().SelectAllSuggest(widget.id_prep).then((value) {
+    await DataTop1000().SelectAllSuggest(widget.prepatop.id_prep).then((value) {
       listesToutes = value;
     });
     List<Releve> search = [];
@@ -132,7 +132,7 @@ class _ReleverState extends State<Relever> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => Index.top(widget.id_prep),
+                    builder: (context) => Index.top(prep: widget.prepatop),
                   ));
             },
             icon: Icon(Icons.arrow_back)),
@@ -278,7 +278,7 @@ class _ReleverState extends State<Relever> {
                                   } else {
                                     return null;
                                   }
-                                },
+                                }, //index.top
                                 // textAlign: TextAlign.center,
                                 enabled: false,
                                 autocorrect: false,
@@ -408,7 +408,7 @@ class _ReleverState extends State<Relever> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => Index.top(widget.id_prep),
+                                builder: (context) => Index.top(prep: widget.prepatop),
                               ));
                         },
                         icon: Icon(Icons.cancel_rounded),

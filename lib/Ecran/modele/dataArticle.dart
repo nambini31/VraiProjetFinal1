@@ -39,7 +39,6 @@ class DataArticle {
       article.fromMap(MapElement);
       listes.add(article);
     });
-    print(listes[0].libele);
     return listes;
   }
 }

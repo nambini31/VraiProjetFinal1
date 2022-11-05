@@ -1,7 +1,6 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, file_names
 
 //import 'package:app/Ecran/authentification/login.dart';
-import 'package:app/Ecran/Pages/ListesMagasin.dart';
 import 'package:app/Ecran/Pages/index.dart';
 import 'package:flutter/material.dart';
 

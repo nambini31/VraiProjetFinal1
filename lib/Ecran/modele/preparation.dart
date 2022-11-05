@@ -10,6 +10,11 @@ class Preparation {
   int _etat = 0;
   int _etat_attente = 0;
 
+  String _date_maj_prep = "";
+
+  get date_maj_prep => this._date_maj_prep;
+
+  set date_maj_prep(value) => this._date_maj_prep = value;
   get etat_attente => this._etat_attente;
 
   set etat_attente(value) => this._etat_attente = value;
@@ -24,7 +29,8 @@ class Preparation {
 
   Preparation();
 
-  Preparation.id(this._id_prep, this._libelle_prep, this._description, this._date_prep, this._id_enseigne, this._etat, this._etat_attente);
+  Preparation.id(
+      this._id_prep, this._libelle_prep, this._date_prep, this._description, this._date_maj_prep, this._id_enseigne, this._etat, this._etat_attente);
 
   get id_prep => _id_prep;
 
@@ -52,6 +58,7 @@ class Preparation {
     description = map["description"];
     id_enseigne = map["id_enseigne"];
     date_prep = map["date_prep"];
+    date_maj_prep = map["date_maj_prep"];
     design_magasin = map["design_enseigne"];
     etat = map["etat"];
     etat_attente = map["etat_attente"];
@@ -65,6 +72,7 @@ class Preparation {
     map["description"] = description;
     map["id_enseigne"] = id_enseigne;
     map["date_prep"] = date_prep;
+    map["date_maj_prep"] = date_maj_prep;
     map["etat"] = etat;
     map["etat_attente"] = etat_attente;
 

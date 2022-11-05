@@ -1,16 +1,15 @@
-// ignore_for_file: prefer_const_constructors, non_constant_identifier_names
+// ignore_for_file: prefer_const_constructors, non_constant_identifier_names, unnecessary_null_comparison
+
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:app/Ecran/Modifier/ModifNouveauArticle.dart';
 import 'package:app/Ecran/Pages/AucuneDonnes.dart';
 import 'package:app/Ecran/Ajout/AjoutNouveauArticle.dart';
-import 'package:app/Ecran/Pages/ListesMagasin.dart';
-import 'package:app/Ecran/Pages/NouveauArticleDetails.dart';
-import 'package:app/Ecran/Pages/index.dart';
 import 'package:app/Ecran/modele/article.dart';
 import 'package:app/Ecran/modele/dataArticle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'two_letter_icon.dart';
 
 class ListesNouveauArticle extends StatefulWidget {
   const ListesNouveauArticle({super.key});
@@ -25,14 +24,14 @@ class _PagesListeState extends State<ListesNouveauArticle> {
   TextEditingController nom = TextEditingController();
   TextEditingController nom1 = TextEditingController();
   List<Article> listes = [];
-
+  File? fichierImage;
   String news = "";
   String news1 = "";
 
   Future recuperer() async {
     try {
       await DataArticle().SelectAll().then((value) {
-        ////print(object)
+        //////print(object)
         setState(() {
           listes = value;
         });
@@ -53,7 +52,7 @@ class _PagesListeState extends State<ListesNouveauArticle> {
     recuperer();
   }
 
-// //print
+// ////print
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,21 +85,24 @@ class _PagesListeState extends State<ListesNouveauArticle> {
       ),
       body: GestureDetector(
         onTap: () {
-          ////print("clicked");
+          //////print("clicked");
           //Slidable.of(context)!.close(duration: Duration(seconds: 0));
         },
         child: SlidableAutoCloseBehavior(
           closeWhenOpened: true,
           closeWhenTapped: true,
-          child: Center(
-            child: (listes.isEmpty)
-                ? AucuneDonnes()
-                : ListView.builder(
-                    itemCount: listes.length,
-                    itemBuilder: (context, index) {
-                      Article article = listes[index];
-                      return SingleChildScrollView(
-                        child: Slidable(
+          child: Container(
+            padding: EdgeInsets.only(top: 10),
+            child: Center(
+              child: (listes.isEmpty)
+                  ? AucuneDonnes()
+                  : ListView.builder(
+                      physics: BouncingScrollPhysics(),
+                      itemCount: listes.length,
+                      itemBuilder: (context, index) {
+                        Article article = listes[index];
+                        return Slidable(
+                          closeOnScroll: true,
                           endActionPane: ActionPane(motion: ScrollMotion(), extentRatio: 0.5, children: [
                             SlidableAction(
                               onPressed: (context) {
@@ -127,24 +129,37 @@ class _PagesListeState extends State<ListesNouveauArticle> {
                           ]),
                           child: ListTile(
                               onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => NouveauArticleDetails(article),
-                                    ));
+                                alerte(article.image, article.description);
                               },
-                              title: Text(article.libele),
-                              subtitle: Text("Prix : " + article.prix.toString()),
-                              leading: TwoLetterIcon(
-                                article.libele,
+                              title: Center(child: Text(article.libele)),
+                              subtitle: Center(child: Text("Prix : ${article.prix.toString()} Ar          Gencode : " + article.gencode)),
+                              leading: Icon(
+                                Icons.production_quantity_limits,
+                                size: 40,
+                                color: Colors.green,
                               ),
-                              trailing: IconButton(onPressed: () {}, icon: Icon(Icons.arrow_forward))),
-                        ),
-                      );
-                    }),
+                              trailing: (article.image != "")
+                                  ? Icon(
+                                      Icons.image,
+                                      color: Colors.blue,
+                                    )
+                                  : Icon(
+                                      Icons.broken_image_rounded,
+                                      color: Colors.redAccent,
+                                    )),
+                        );
+                      }),
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  showImage(String img) {
+    return Image.memory(
+      base64Decode(img),
+      fit: BoxFit.cover,
     );
   }
 
@@ -187,7 +202,7 @@ class _PagesListeState extends State<ListesNouveauArticle> {
                     // Article Article = Article();
                     // Article.nom = news;
                     // dataArticle().AjoutArticle(Article);
-                    // ////print("ajout");
+                    // //////print("ajout");
                     // recuperer();
                     // Navigator.pop(context);
                   },
@@ -248,6 +263,88 @@ class _PagesListeState extends State<ListesNouveauArticle> {
               )
             ],
           );
+        }));
+  }
+
+  Future alerte(String image, String description) async {
+    double div = (description.length > 100) ? 2.2 : 2.4;
+    if (description == "") {
+      div = 2.91;
+    }
+    print(div);
+    return showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: ((BuildContext context) {
+          return (image == "")
+              ? AlertDialog(
+                  title: Text(
+                    "Description",
+                    style: TextStyle(decoration: TextDecoration.underline),
+                    textAlign: TextAlign.center,
+                  ),
+                  content: Container(
+                    child: Text((description == "") ? "Aucune Descrption" : description, textAlign: TextAlign.center),
+                  ),
+                  actionsAlignment: MainAxisAlignment.end,
+                  actions: [
+                    Container(
+                      width: MediaQuery.of(context).size.width,
+                      child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text("OK")),
+                    )
+                  ],
+                )
+              : AlertDialog(
+                  title: Text(
+                    "Image",
+                    style: TextStyle(decoration: TextDecoration.underline),
+                    textAlign: TextAlign.center,
+                  ),
+                  content: Container(
+                    height: MediaQuery.of(context).size.height / div,
+                    child: Column(
+                      children: [
+                        Stack(
+                          children: [
+                            Container(
+                                width: MediaQuery.of(context).size.width,
+                                height: MediaQuery.of(context).size.height / 3,
+                                child: ClipOval(child: showImage(image))),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        (description == "")
+                            ? SizedBox()
+                            : Column(
+                                children: [
+                                  Text("DESCRIPTION", style: TextStyle(decoration: TextDecoration.underline)),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Text(description, textAlign: TextAlign.center),
+                                ],
+                              )
+                      ],
+                    ),
+                  ),
+                  actionsAlignment: MainAxisAlignment.end,
+                  actions: [
+                    Container(
+                      width: MediaQuery.of(context).size.width,
+                      child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text("OK")),
+                    )
+                  ],
+                );
         }));
   }
 }

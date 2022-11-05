@@ -5,16 +5,17 @@ import 'package:app/Ecran/Pages/ListesNouveauArticle.dart';
 import 'package:app/Ecran/Pages/ListesPreparation.dart';
 import 'package:app/Ecran/Pages/ListesTop1000.dart';
 import 'package:app/Ecran/Pages/Relever.dart';
+import 'package:app/Ecran/modele/preparation.dart';
 import 'package:flutter/material.dart';
 
 class Index extends StatefulWidget {
   int i = 0;
-  int i1 = 0;
-  int i2 = 0;
+  Preparation prep1 = Preparation();
+  Preparation prep = Preparation();
 
   Index(this.i);
-  Index.rel(this.i1);
-  Index.top(this.i2);
+  Index.rel(this.prep);
+  Index.top({required this.prep});
 
   @override
   State<Index> createState() => _IndexState();
@@ -24,13 +25,12 @@ class _IndexState extends State<Index> {
   int i = 0;
   int i1 = 0;
   int i2 = 0;
-
   @override
   void initState() {
     super.initState();
     i = widget.i;
-    i1 = widget.i1;
-    i2 = widget.i2;
+    i1 = widget.prep1.id_prep;
+    i2 = widget.prep.id_prep;
   }
 
   List<Widget> pages = [Acceuil(), ListesPreparation(), ListesNouveauArticle()];
@@ -44,17 +44,21 @@ class _IndexState extends State<Index> {
   }
 
   Widget retour() {
-    if (i1 != 0) {
+    if (i1 != 0 && i == 0 && i2 == 0) {
       setState(() {
         i = 1;
       });
-      return Relever(i1);
-    } else if (i2 != 0) {
+      return Relever(widget.prep1);
+    } else if (i2 != 0 && i == 0 && i1 == 0) {
       setState(() {
         i = 1;
       });
-      return ListesTop1000(id: i2);
+      return ListesTop1000(
+        preptop: widget.prep,
+      );
     } else {
+      i1 = 0;
+      i2 = 0;
       return pages[i];
     }
   }

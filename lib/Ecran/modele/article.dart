@@ -1,5 +1,6 @@
 class Article {
   int _id = 1;
+  Article();
 
   String _image = "";
 
@@ -7,20 +8,28 @@ class Article {
 
   int _prix = 0;
 
-  int _gencode = 0;
+  String _gencode = "";
+
+  String get gencode => this._gencode;
+
+  set gencode(String value) => this._gencode = value;
 
   int _id_enseigne = 0;
+
+  String _description = "";
+
+  String get description => this._description;
+
+  set description(String value) => this._description = value;
 
   get id_enseigne => this._id_enseigne;
 
   set id_enseigne(value) => this._id_enseigne = value;
 
-  Article();
+  Article.id(this._id, this._libele, this._prix, this._gencode, this._description, this._image, this._id_enseigne);
 
-  Article.id(this._id, this._libele, this._prix, this._gencode, this._image, this._id_enseigne);
-
-  Article.ajt(this._libele, this._prix, this._gencode, this._image, this._id_enseigne);
-  Article.modif(this._id, this._libele, this._prix, this._gencode, this._image, this._id_enseigne);
+  Article.ajt(this._libele, this._prix, this._gencode, this._description, this._image, this._id_enseigne);
+  Article.modif(this._id, this._libele, this._prix, this._gencode, this._description, this._image, this._id_enseigne);
 
   int get id => this._id;
 
@@ -38,10 +47,6 @@ class Article {
 
   set prix(value) => this._prix = value;
 
-  get gencode => this._gencode;
-
-  set gencode(value) => this._gencode = value;
-
   void fromMap(Map<String, dynamic> map) {
     id = map["id"];
     libele = map["libele"];
@@ -49,6 +54,7 @@ class Article {
     id_enseigne = map["id_enseigne"];
     image = map["image"];
     gencode = map["gencode"];
+    description = map["description"];
   }
 
   Map<String, dynamic> toMap() {
@@ -58,6 +64,7 @@ class Article {
     map["gencode"] = gencode;
     map["id_enseigne"] = _id_enseigne;
     map["image"] = image;
+    map["description"] = description;
     return map;
   }
 }
