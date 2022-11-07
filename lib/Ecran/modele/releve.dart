@@ -6,6 +6,11 @@ class Releve {
   String _gencode_art_conc = "";
   String _prix_art_conc = "";
   String _date_maj_releve = "";
+  int _id_choix = 0;
+
+  int get id_choix => this._id_choix;
+
+  set id_choix(int value) => this._id_choix = value;
 
   String get prix_art_conc => this._prix_art_conc;
 
@@ -15,9 +20,9 @@ class Releve {
 
   set date_maj_releve(value) => this._date_maj_releve = value;
 
-  Releve(this._id_releve, this._libelle_art_conc, this._gencode_art_conc);
+  Releve(this._id_releve, this._libelle_art_conc, this._gencode_art_conc, this._id_choix);
   Releve.no();
-  Releve.update(this._id_releve, this._prix_art_conc, this._date_maj_releve);
+  Releve.update(this._id_releve, this._prix_art_conc, this._date_maj_releve, this._id_choix);
 
   int get id_releve => _id_releve;
 
@@ -35,6 +40,7 @@ class Releve {
     Map<String, dynamic> map = {};
     map["prix_art_conc"] = prix_art_conc;
     map["date_maj_releve"] = date_maj_releve;
+    map["id_choix"] = id_choix;
     return map;
   }
 }

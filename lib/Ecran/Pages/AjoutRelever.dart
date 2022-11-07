@@ -84,7 +84,7 @@ class _ReleverState extends State<Relever> {
                               style: ButtonStyle(
                                   foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.blue)),
                               onPressed: () {
-                                Releve releve = Releve.update(id_relever, prixController.text, dateTime());
+                                Releve releve = Releve.update(id_relever, prixController.text, dateTime(), id_choix);
                                 DataTop1000().UpdateReleve(releve, widget.prepatop.id_prep);
 
                                 Navigator.push(
@@ -127,7 +127,7 @@ class _ReleverState extends State<Relever> {
     });
     List<Releve> search = [];
     listesToutes.forEach((element) {
-      Releve releve = Releve(element.id_releve, element.libelle_art_conc, element.gencode_art_conc);
+      Releve releve = Releve(element.id_releve, element.libelle_art_conc, element.gencode_art_conc, id_choix);
 
       search.add(releve);
     });
@@ -473,7 +473,11 @@ class _ReleverState extends State<Relever> {
                           height: 40,
                           child: ElevatedButton(
                             onPressed: () {
-                              annulerAlert("Annulation de relever");
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => Index.top(prep: widget.prepatop),
+                                  ));
                               //recuperer();
                             },
                             // ignore: sort_child_properties_last

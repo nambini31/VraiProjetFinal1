@@ -12,6 +12,7 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
+import 'ModifierRelever.dart';
 
 class ListesTop1000 extends StatefulWidget {
   Preparation preptop = Preparation();
@@ -236,7 +237,7 @@ class _ListesTop1000State extends State<ListesTop1000> {
                     return SingleChildScrollView(
                         child: Slidable(
                       startActionPane: startAction(top1000.etat_art, top1000.prix_art_conc, top1000.id_releve),
-                      endActionPane: endAction(top1000.etat_art, top1000.prix_art_conc, top1000.id_releve),
+                      endActionPane: endAction(top1000),
                       child: ListTile(
                         onTap: () {
                           FocusScope.of(context).requestFocus(FocusNode());
@@ -281,11 +282,11 @@ class _ListesTop1000State extends State<ListesTop1000> {
     }
   }
 
-  ActionPane? endAction(int etat, int prix, int id_releve) {
+  ActionPane? endAction(Top1000 top1000) {
     var endAttente = ActionPane(motion: ScrollMotion(), extentRatio: 0.6, children: [
       SlidableAction(
         onPressed: (context) {
-          alerteDelete(id_releve);
+          alerteDelete(top1000.id_releve);
         },
         label: "Annuler",
         backgroundColor: Colors.red,
@@ -293,7 +294,13 @@ class _ListesTop1000State extends State<ListesTop1000> {
       ),
       Padding(padding: EdgeInsets.all(2)),
       SlidableAction(
-        onPressed: (context) {},
+        onPressed: (context) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Index.ModifRel(top1000, widget.preptop),
+              ));
+        },
         label: "Modifier",
         backgroundColor: Colors.blue,
         icon: Icons.add_home,
@@ -301,9 +308,9 @@ class _ListesTop1000State extends State<ListesTop1000> {
       Padding(padding: EdgeInsets.all(2)),
     ]);
 
-    if (etat == 1) {
+    if (top1000.etat_art == 1) {
       return null;
-    } else if (etat == 0 && prix != 0) {
+    } else if (top1000.etat_art == 0 && top1000.prix_art_conc != 0) {
       return endAttente;
     } else {
       return null;
@@ -349,7 +356,7 @@ class _ListesTop1000State extends State<ListesTop1000> {
                     return SingleChildScrollView(
                         child: Slidable(
                       startActionPane: startAction(top1000.etat_art, top1000.prix_art_conc, top1000.id_releve),
-                      endActionPane: endAction(top1000.etat_art, top1000.prix_art_conc, top1000.id_releve),
+                      endActionPane: endAction(top1000),
                       child: ListTile(
                         onTap: () {
                           FocusScope.of(context).requestFocus(FocusNode());
@@ -388,7 +395,7 @@ class _ListesTop1000State extends State<ListesTop1000> {
                     return SingleChildScrollView(
                         child: Slidable(
                       startActionPane: startAction(top1000.etat_art, top1000.prix_art_conc, top1000.id_releve),
-                      endActionPane: endAction(top1000.etat_art, top1000.prix_art_conc, top1000.id_releve),
+                      endActionPane: endAction(top1000),
                       child: ListTile(
                         onTap: () {
                           FocusScope.of(context).requestFocus(FocusNode());

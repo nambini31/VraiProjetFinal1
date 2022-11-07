@@ -7,8 +7,19 @@ class Preparation {
   String _description = "";
   String _date_prep = "";
   String _design_magasin = "";
+  String _libelle_zone = "";
+
+  get libelle_zone => this._libelle_zone;
+
+  set libelle_zone(value) => this._libelle_zone = value;
+
   int _etat = 0;
   int _etat_attente = 0;
+  int _id_zone = 0;
+
+  get id_zone => this._id_zone;
+
+  set id_zone(value) => this._id_zone = value;
 
   String _date_maj_prep = "";
 
@@ -29,8 +40,8 @@ class Preparation {
 
   Preparation();
 
-  Preparation.id(
-      this._id_prep, this._libelle_prep, this._date_prep, this._description, this._date_maj_prep, this._id_enseigne, this._etat, this._etat_attente);
+  Preparation.id(this._id_prep, this._libelle_prep, this._date_prep, this._description, this._date_maj_prep, this._id_enseigne, this._etat,
+      this._etat_attente, this._id_zone);
 
   get id_prep => _id_prep;
 
@@ -60,8 +71,10 @@ class Preparation {
     date_prep = map["date_prep"];
     date_maj_prep = map["date_maj_prep"];
     design_magasin = map["design_enseigne"];
+    libelle_zone = map["libelle_zone"];
     etat = map["etat"];
     etat_attente = map["etat_attente"];
+    id_zone = map["id_zone"];
   }
 
   Map<String, dynamic> toMap() {
@@ -75,6 +88,7 @@ class Preparation {
     map["date_maj_prep"] = date_maj_prep;
     map["etat"] = etat;
     map["etat_attente"] = etat_attente;
+    map["id_zone"] = id_zone;
 
     return map;
   }

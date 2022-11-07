@@ -524,7 +524,11 @@ class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
                         height: 40,
                         child: ElevatedButton(
                           onPressed: () {
-                            ModifAlert("Annuler le modification ?", 0);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Index(2),
+                                ));
                           },
                           // ignore: sort_child_properties_last
                           child: Text(

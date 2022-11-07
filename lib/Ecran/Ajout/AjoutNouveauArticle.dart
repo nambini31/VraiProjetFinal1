@@ -536,7 +536,11 @@ class _PagesNouveauArticleState extends State<AjoutNouveauArticle> {
                       Container(
                         height: 40,
                         child: ElevatedButton(
-                          onPressed: () => annulerAlert("Annuler l'enregistrement ?"),
+                          onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Index(2),
+                              )),
                           //recuperer();
 
                           // ignore: sort_child_properties_last

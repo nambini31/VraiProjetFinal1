@@ -22,7 +22,7 @@ class DataPreparation {
     List<Preparation> listes = [];
     Database db = await DatabaseHelper().database;
     List<Map<String, dynamic>> result = await db.rawQuery(
-        "SELECT preparation.*,enseigne.design_enseigne FROM preparation INNER JOIN enseigne ON preparation.id_enseigne = enseigne.id_enseigne");
+        "SELECT preparation.*,enseigne.design_enseigne,zone.libelle_zone FROM enseigne INNER JOIN preparation  ON preparation.id_enseigne = enseigne.id_enseigne INNER JOIN zone ON preparation.id_zone = zone.id_zone ");
     //List<Map<String, dynamic>> resulti = await db.query("Article", where: "", orderBy: "is ASC");
     result.forEach((MapElement) {
       Preparation article = Preparation();

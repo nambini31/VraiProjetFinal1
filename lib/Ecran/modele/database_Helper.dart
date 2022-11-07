@@ -20,7 +20,7 @@ class DatabaseHelper {
 
   Future create() async {
     Directory directory = await getApplicationSupportDirectory();
-    String dataDirectory = join(directory.path, "data48.db");
+    String dataDirectory = join(directory.path, "data.db");
     var bdd = await openDatabase(
       dataDirectory,
       version: 1,
@@ -35,6 +35,12 @@ class DatabaseHelper {
           id_enseigne	INTEGER PRIMARY KEY, 
           design_enseigne	TEXT NULL,
           design_plus_enseigne	TEXT NULL)
+    """);
+    await db.execute("""
+          CREATE TABLE zone( 
+          id_zone	INTEGER PRIMARY KEY, 
+          libelle_zone	TEXT NULL,
+          libelle_plus_zone	TEXT NULL)
     """);
     await db.execute("""
 
@@ -56,6 +62,7 @@ class DatabaseHelper {
          id_enseigne INTEGER NULL,
          libelle_prep TEXT NULL,
          description TEXT NULL,
+         id_zone INTEGER NULL,
          date_prep TEXT NULL,
          date_maj_prep TEXT NULL,
          etat INTEGER NULL,
@@ -80,7 +87,8 @@ class DatabaseHelper {
          etat_art INTEGER  NULL,
          date_maj_releve TEXT NULL,
          date_val_releve TEXT NULL,
-         id_prep INTEGER NULL
+         id_prep INTEGER NULL,
+         id_choix INTEGER NULL
          
       )
     

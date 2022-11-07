@@ -4,7 +4,6 @@ import 'dart:convert';
 
 import 'package:app/Ecran/Pages/AucuneDonnes.dart';
 import 'package:app/Ecran/Pages/ListesTop1000.dart';
-import 'package:app/Ecran/Pages/Relever.dart';
 import 'package:app/Ecran/Pages/index.dart';
 import 'package:app/Ecran/Pages/two_letter_icon.dart';
 import 'package:app/Ecran/modele/dataPreparation.dart';
@@ -50,7 +49,7 @@ class _ListesPreparationState extends State<ListesPreparation> {
   //   EasyLoading.instance.dismissOnTap = false;
   // }
 
-  String ip = "10.169.7.125";
+  String ip = "197.7.2.3";
 
   Future chargeArticle() async {
     Database db = await DatabaseHelper().database;
@@ -77,7 +76,10 @@ class _ListesPreparationState extends State<ListesPreparation> {
               int.parse(element["etat_rel"]),
               "",
               "",
-              int.parse(element["num_rel_rel"]));
+              int.parse(
+                element["num_rel_rel"],
+              ),
+              0);
 
           try {
             await db.insert("releve", top1000.toMap());
@@ -121,6 +123,36 @@ class _ListesPreparationState extends State<ListesPreparation> {
     }
   }
 
+  Future chargeZone() async {
+    Database db = await DatabaseHelper().database;
+    //await db.rawDelete("DELETE FROM releve");
+    List produitlist = [];
+
+    try {
+      var response = await http.get(Uri.parse("http://$ip/app/lib/php/selectZone.php")).timeout(Duration(seconds: 4));
+
+      if (response.statusCode == 200) {
+        produitlist = json.decode(response.body);
+
+        produitlist.forEach((element) async {
+          Item top = Item.id(
+            int.parse(element["zone_zn"]),
+            element["libelle_zn"],
+            element["lib_plus_zn"],
+          );
+
+          try {
+            await db.insert("zone", top.toMap());
+          } catch (e) {}
+        });
+      } else {
+        //print("dat non recu");
+      }
+    } catch (e) {
+      //print('connecx timeout');
+    }
+  }
+
   Future Charger() async {
     Database db = await DatabaseHelper().database;
 
@@ -131,6 +163,7 @@ class _ListesPreparationState extends State<ListesPreparation> {
 
       if (response.statusCode == 200) {
         chargeMagasin();
+        chargeZone();
         produitlist = json.decode(response.body);
         await EasyLoading.show(status: 'loading...');
 
@@ -144,7 +177,8 @@ class _ListesPreparationState extends State<ListesPreparation> {
               element["dt_maj_releve"],
               int.parse(element["enseigne_releve"]),
               0,
-              0);
+              0,
+              element["zone_releve"]);
 
           try {
             await db.insert("preparation", prepa.toMap());
@@ -300,7 +334,7 @@ class _ListesPreparationState extends State<ListesPreparation> {
                                       ));
                                 },
                                 title: Text(prep.libelle_prep),
-                                subtitle: Center(child: Text(prep.design_magasin)),
+                                subtitle: Center(child: Text("${prep.design_magasin} ( ${prep.libelle_zone} )")),
                                 leading: TwoLetterIcon(prep.libelle_prep),
                                 trailing: icone(prep.etat, prep.etat_attente)),
                           ),

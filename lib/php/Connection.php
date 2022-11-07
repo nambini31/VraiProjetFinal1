@@ -1,7 +1,7 @@
 <?php
 $servername = "localhost";
-$username = "infor";
-$password = "servinfodistant";
+$username = "root";
+$password = "";
 $db = "apps2m";
 // Create connection
 $conn = new mysqli($servername, $username, $password, $db);
