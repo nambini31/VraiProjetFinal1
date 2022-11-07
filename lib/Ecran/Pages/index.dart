@@ -14,7 +14,7 @@ class Index extends StatefulWidget {
   Preparation prep = Preparation();
 
   Index(this.i);
-  Index.rel(this.prep);
+  Index.rel(this.prep1);
   Index.top({required this.prep});
 
   @override

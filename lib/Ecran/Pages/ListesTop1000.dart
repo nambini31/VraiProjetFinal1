@@ -31,9 +31,13 @@ class _ListesTop1000State extends State<ListesTop1000> {
   int i = 0;
 
   bool rel = false;
+  String dateTime() {
+    var date = DateTime.now();
+    return DateFormat("yyyy-MM-dd HH:mm:ss").format(date);
+  }
 
   Future<void> validerRelever(int id_releve, int id_prep) async {
-    await DataTop1000().UpdateEtatReleve(id_releve, id_prep);
+    await DataTop1000().UpdateEtatReleve(id_releve, id_prep, dateTime());
     Navigator.push(
         context,
         MaterialPageRoute(
@@ -120,103 +124,98 @@ class _ListesTop1000State extends State<ListesTop1000> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        return Future.value(false);
-      },
-      child: GestureDetector(
-          onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
-          child: Scaffold(
-            appBar: AppBar(
-              centerTitle: true,
-              actions: [
-                IconButton(
+    return GestureDetector(
+        onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
+        child: Scaffold(
+          appBar: AppBar(
+            centerTitle: true,
+            actions: [
+              IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Index.rel(widget.preptop),
+                        ));
+                  },
+                  icon: Icon(Icons.takeout_dining))
+            ],
+            title: Text(widget.preptop.libelle_prep),
+            leading: rel
+                ? Icon(
+                    Icons.arrow_back,
+                    color: Colors.transparent,
+                  )
+                : IconButton(
                     onPressed: () {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => Index.rel(widget.preptop),
+                            builder: (context) => Index(1),
                           ));
                     },
-                    icon: Icon(Icons.takeout_dining))
-              ],
-              title: Text(widget.preptop.libelle_prep),
-              leading: rel
-                  ? Icon(
-                      Icons.arrow_back,
-                      color: Colors.transparent,
-                    )
-                  : IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Index(1),
-                            ));
+                    icon: Icon(Icons.arrow_back)),
+          ),
+          body: DefaultTabController(
+            length: 3,
+            initialIndex: 0,
+            child: Scaffold(
+              appBar: PreferredSize(
+                preferredSize: Size.fromHeight(110),
+                child: AppBar(
+                  automaticallyImplyLeading: false,
+                  titleSpacing: 15,
+                  title: Container(
+                    height: 40,
+                    margin: EdgeInsets.only(top: 10),
+                    child: TextFormField(
+                      onChanged: (value) {
+                        setState(() {
+                          search(value);
+                        });
                       },
-                      icon: Icon(Icons.arrow_back)),
-            ),
-            body: DefaultTabController(
-              length: 3,
-              initialIndex: 0,
-              child: Scaffold(
-                appBar: PreferredSize(
-                  preferredSize: Size.fromHeight(110),
-                  child: AppBar(
-                    automaticallyImplyLeading: false,
-                    titleSpacing: 15,
-                    title: Container(
-                      height: 40,
-                      margin: EdgeInsets.only(top: 10),
-                      child: TextFormField(
-                        onChanged: (value) {
-                          setState(() {
-                            search(value);
-                          });
-                        },
-                        keyboardType: TextInputType.visiblePassword,
-                        decoration: InputDecoration(
-                          contentPadding: EdgeInsets.all(2),
-                          prefixIcon: Icon(Icons.search),
-                          prefixIconColor: Colors.grey,
-                          hintText: "Rechercher",
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(3)),
-                        ),
+                      keyboardType: TextInputType.visiblePassword,
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.all(2),
+                        prefixIcon: Icon(Icons.search),
+                        prefixIconColor: Colors.grey,
+                        hintText: "Rechercher",
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(3)),
                       ),
                     ),
-                    bottom: TabBar(
-                        onTap: (value) {
-                          setState(() {
-                            i = value;
-                          });
-                        },
-                        tabs: [
-                          Tab(
-                            text: "Tous",
-                          ),
-                          Tab(
-                            text: "En attente",
-                          ),
-                          Tab(
-                            text: "Valider",
-                          )
-                        ]),
                   ),
-                ),
-                body: Container(
-                  margin: EdgeInsets.only(top: 10),
-                  child: TabBarView(children: [
-                    Toutes(),
-                    Attente(),
-                    Valide(),
-                  ]),
+                  bottom: TabBar(
+                      onTap: (value) {
+                        setState(() {
+                          i = value;
+                        });
+                      },
+                      tabs: [
+                        Tab(
+                          text: "Tous",
+                        ),
+                        Tab(
+                          text: "En attente",
+                        ),
+                        Tab(
+                          text: "Valider",
+                        )
+                      ]),
                 ),
               ),
+              body: Container(
+                margin: EdgeInsets.only(top: 10),
+                child: TabBarView(physics: BouncingScrollPhysics(), children: [
+                  Toutes(),
+                  Attente(),
+                  Valide(),
+                ]),
+              ),
             ),
-          )),
-    );
+          ),
+        ));
   }
 
   Container Toutes() {
@@ -229,6 +228,7 @@ class _ListesTop1000State extends State<ListesTop1000> {
           child: (listesToutes.isEmpty)
               ? AucuneDonnes()
               : ListView.builder(
+                  physics: BouncingScrollPhysics(),
                   itemCount: listesToutes.length,
                   itemBuilder: (context, index) {
                     Top1000 top1000 = listesToutes[index];
@@ -341,6 +341,7 @@ class _ListesTop1000State extends State<ListesTop1000> {
           child: (listesAttente.isEmpty)
               ? AucuneDonnes()
               : ListView.builder(
+                  physics: BouncingScrollPhysics(),
                   itemCount: listesAttente.length,
                   itemBuilder: (context, index) {
                     Top1000 top1000 = listesAttente[index];
@@ -509,25 +510,71 @@ class _ListesTop1000State extends State<ListesTop1000> {
         }));
   }
 
+  Row row(String nom, String text) {
+    return Row(
+      children: [
+        Text(
+          nom,
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        Text(
+          text,
+          style: TextStyle(wordSpacing: 2),
+        ),
+      ],
+    );
+  }
+
+  double panga = 0;
   Future alerte(Top1000 top1000) async {
+    if (top1000.date_maj_releve == "" && top1000.date_val_releve == "") {
+      setState(() {
+        panga = 8;
+      });
+    } else if (top1000.date_maj_releve != "" && top1000.date_val_releve == "") {
+      setState(() {
+        panga = 7;
+      });
+    } else {
+      setState(() {
+        panga = 5;
+      });
+    }
+
     return showDialog(
         context: context,
         barrierDismissible: true,
         builder: ((BuildContext context) {
           return AlertDialog(
             title: Text(
-              "Article Concurent",
+              "Article Concurent | Date",
               textAlign: TextAlign.center,
             ),
             content: Container(
-              height: MediaQuery.of(context).size.height / 8,
+              height: MediaQuery.of(context).size.height / panga,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Libelle : ${top1000.libelle_art_conc} "),
-                  Text("Gencode : ${top1000.gencode_art_conc}"),
-                  TextPrix(top1000.prix_art_conc)
+                  row("Libelle  :  ", top1000.libelle_art_conc),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  row("Gencode  :  ", top1000.gencode_art_conc),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  row("Pix  :  ", TextPrix(top1000.prix_art_conc)),
+                  (top1000.date_maj_releve == "")
+                      ? SizedBox(
+                          height: 5,
+                        )
+                      : SizedBox(),
+                  (top1000.date_maj_releve != "") ? row("Date relever  :  ", top1000.date_maj_releve) : SizedBox(),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  (top1000.date_val_releve != "") ? row("Date validaion  :  ", top1000.date_val_releve) : Container(),
                 ],
               ),
             ),
@@ -546,11 +593,11 @@ class _ListesTop1000State extends State<ListesTop1000> {
         }));
   }
 
-  Widget TextPrix(int prix) {
+  String TextPrix(int prix) {
     if (prix != 0) {
-      return Text("Prix : $prix Ar");
+      return "$prix Ar";
     } else {
-      return Text("Prix : 0 Ar");
+      return "0 Ar";
     }
   }
 }

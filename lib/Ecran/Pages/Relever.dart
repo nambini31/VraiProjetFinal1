@@ -27,6 +27,10 @@ class _ReleverState extends State<Relever> {
   int id_choix = 1;
   int id_relever = 0;
 
+  double pad = 0;
+  double padcode = 0;
+  double bas = 0;
+
   TextEditingController searchController = TextEditingController();
   TextEditingController prixController = TextEditingController();
   TextEditingController scanController = TextEditingController();
@@ -38,14 +42,66 @@ class _ReleverState extends State<Relever> {
 
   void ajouter() {
     if (formValide.currentState!.validate()) {
-      Releve releve = Releve.update(id_relever, prixController.text, dateTime());
-      DataTop1000().UpdateReleve(releve, widget.prepatop.id_prep);
+      if (padcode != 0) {
+        setState(() {
+          bas = 0;
+          padcode = 0.7;
+        });
+        if (pad != 0) {
+          setState(() {
+            bas = 0;
+            pad = 0.7;
+          });
+        }
+      } else {
+        showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: ((BuildContext context) {
+              return AlertDialog(
+                title: Text("Ajout de relever"),
+                actionsAlignment: MainAxisAlignment.end,
+                actions: [
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        SizedBox(
+                          child: TextButton(
+                              style: ButtonStyle(
+                                  foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.red)),
+                              onPressed: () {
+                                Navigator.pop(context, false);
+                              },
+                              child: Text("Non")),
+                        ),
+                        SizedBox(
+                          width: 30,
+                        ),
+                        Container(
+                          child: TextButton(
+                              style: ButtonStyle(
+                                  foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.blue)),
+                              onPressed: () {
+                                Releve releve = Releve.update(id_relever, prixController.text, dateTime());
+                                DataTop1000().UpdateReleve(releve, widget.prepatop.id_prep);
 
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Index.top(prep: widget.prepatop),
-          ));
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Index.top(prep: widget.prepatop),
+                                    ));
+                              },
+                              child: Text("Oui")),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              );
+            }));
+      }
     } else {}
   }
 
@@ -86,29 +142,21 @@ class _ReleverState extends State<Relever> {
       barcodeLocal = await FlutterBarcodeScanner.scanBarcode("#DF1C5D", "Annuler", true, ScanMode.BARCODE);
       if (barcodeLocal != "-1") {
         Map<String, dynamic> selectlibell = await DataTop1000().SelectLibelle(barcodeLocal);
-
-        setState(() {
-          codebarController.text = barcodeLocal;
-          selectgencode = barcodeLocal;
-          selectlibelle = selectlibell["libelle_art_conc"];
-          id_relever = selectlibell["id_releve"];
-        });
-        scanController.text = selectlibell["libelle_art_conc"];
-      } else {
-        setState(() {
-          selectgencode = "";
-          selectlibelle = "";
-        });
-      }
+        print(barcodeLocal);
+        if (selectlibell["prix_art_conc"] == 0) {
+          print("relever non faite");
+          setState(() {
+            codebarController.text = barcodeLocal;
+            selectgencode = barcodeLocal;
+            selectlibelle = selectlibell["libelle_art_conc"];
+            id_relever = selectlibell["id_releve"];
+          });
+          scanController.text = selectlibell["libelle_art_conc"];
+        } else {}
+      } else {}
     } catch (e) {
-      scanController.text = "";
-      codebarController.text = "";
       setState(() {
         id_relever = 0;
-      });
-      setState(() {
-        selectgencode = "";
-        selectlibelle = "";
       });
     }
   }
@@ -139,293 +187,406 @@ class _ReleverState extends State<Relever> {
       ),
       body: Center(
         child: SingleChildScrollView(
-          child: Form(
-            key: formValide,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text("ID RELEVER : $id_relever"),
-                Padding(padding: EdgeInsets.all(12)),
-                Container(
-                  margin: EdgeInsets.only(top: 20, left: 20, right: 20),
-                  child: DropdownButtonFormField2(
-                    value: id_choix.toString(),
-                    items: listesvrai,
-                    hint: Text("Choix Relever"),
-                    onChanged: (value) {
-                      id_choix = int.parse(value.toString());
-                      setState(() => id_choix);
-                      searchController.text = "";
-                      prixController.text = "";
-                      codebarController.text = "";
-                      setState(() {
-                        id_relever = 0;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      contentPadding: EdgeInsets.all(12),
-                      filled: true,
-                      //hintText: "Magasin",
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
-                      //contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+          physics: BouncingScrollPhysics(),
+          child: Container(
+            padding: EdgeInsets.all(30),
+            child: Form(
+                key: formValide,
+                child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Text("ID RELEVER : $id_relever"),
+                  Padding(padding: EdgeInsets.all(12)),
+                  Container(
+                    margin: EdgeInsets.only(top: 20),
+                    child: DropdownButtonFormField2(
+                      value: id_choix.toString(),
+                      items: listesvrai,
+                      hint: Text("Choix Relever"),
+                      onChanged: (value) {
+                        searchController.text = "";
+                        prixController.text = "";
+                        codebarController.text = "";
+                        setState(() {
+                          id_choix = int.parse(value.toString());
+                          if (id_choix == 1) {
+                            pad = 0;
+                          }
+                          id_relever = 0;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.all(12),
+                        filled: true,
+                        //hintText: "Magasin",
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
+                        //contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
 
-                      prefixIcon: Icon(
-                        Icons.select_all,
-                        color: Colors.blue,
+                        prefixIcon: Icon(
+                          Icons.select_all,
+                          color: Colors.blue,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Container(
-                  margin: EdgeInsets.only(top: 20, left: 20, right: 20),
-                  child: (id_choix == 1)
-                      ? TypeAheadFormField(
-                          validator: (value) => (value!.isEmpty || searchController.text != selectlibelle) ? "Aucun article correspondant" : null,
-                          textFieldConfiguration: TextFieldConfiguration(
-                            controller: searchController,
+                  Container(
+                    margin: EdgeInsets.only(top: 20),
+                    child: (id_choix == 1)
+                        ? TypeAheadFormField(
+                            validator: (value) => (value!.isEmpty || searchController.text != selectlibelle) ? "Aucun article choisit" : null,
+                            textFieldConfiguration: TextFieldConfiguration(
+                              controller: searchController,
 
-                            autocorrect: false,
-                            keyboardType: TextInputType.visiblePassword,
-                            decoration: InputDecoration(
-                              contentPadding: EdgeInsets.all(0),
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
-                              //contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                              autocorrect: false,
+                              keyboardType: TextInputType.visiblePassword,
+                              decoration: InputDecoration(
+                                contentPadding: EdgeInsets.all(0),
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
+                                //contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
 
-                              //labelText: "Nom",
-                              hintText: "Rechercher article",
-                              prefixIcon: Container(
-                                width: 50,
-                                child: Icon(
-                                  Icons.search,
-                                  color: Colors.blue,
+                                //labelText: "Nom",
+                                hintText: "Rechercher article",
+                                prefixIcon: Container(
+                                  width: 50,
+                                  child: Icon(
+                                    Icons.search,
+                                    color: Colors.blue,
+                                  ),
                                 ),
                               ),
-                            ),
 
-                            onTap: () {},
+                              onTap: () {},
 
-                            // validator: (value) => value!.isEmpty ? "Veuillez entrer la designation" : null,
-                            // onSaved: (newValue) {
-                            //   //nom = newValue!;
-                            // },
-                          ),
-                          noItemsFoundBuilder: (context) => SizedBox(
-                            height: 40,
-                            child: Center(
-                              child: Text("Article introuvable"),
+                              // validator: (value) => value!.isEmpty ? "Veuillez entrer la designation" : null,
+                              // onSaved: (newValue) {
+                              //   //nom = newValue!;
+                              // },
                             ),
-                          ),
-                          suggestionsBoxDecoration: SuggestionsBoxDecoration(
-                              constraints: BoxConstraints(maxHeight: suggeest ? 200 : 0),
-                              elevation: 4.0,
-                              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5))),
-                          itemBuilder: (context, itemData) {
-                            Releve? rel = Releve.no();
-                            rel = itemData as Releve?;
-                            return Row(
+                            noItemsFoundBuilder: (context) => SizedBox(
+                              height: 40,
+                              child: Center(
+                                child: Text("Article introuvable"),
+                              ),
+                            ),
+                            suggestionsBoxDecoration: SuggestionsBoxDecoration(
+                                constraints: BoxConstraints(maxHeight: suggeest ? 200 : 0),
+                                elevation: 4.0,
+                                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5))),
+                            itemBuilder: (context, itemData) {
+                              Releve? rel = Releve.no();
+                              rel = itemData as Releve?;
+                              return Row(
+                                children: [
+                                  SizedBox(width: 10),
+                                  Icon(Icons.refresh),
+                                  SizedBox(width: 10),
+                                  Container(padding: EdgeInsets.only(top: 14), height: 40, child: Text((rel!.libelle_art_conc)))
+                                ],
+                              );
+                            },
+                            onSuggestionSelected: (suggestion) {
+                              Releve? rel = Releve.no();
+                              rel = suggestion as Releve?;
+                              searchController.text = rel!.libelle_art_conc;
+                              codebarController.text = rel.gencode_art_conc;
+
+                              setState(() {
+                                selectgencode = rel!.gencode_art_conc;
+                                id_relever = rel.id_releve;
+                                selectlibelle = rel.libelle_art_conc;
+                              });
+                            },
+                            suggestionsCallback: (pattern) {
+                              if (pattern.isNotEmpty) {
+                                return onTapSearch(pattern);
+                              } else {
+                                return [];
+                              }
+                            },
+                          )
+                        : Container(
+                            padding: EdgeInsets.all(pad),
+                            color: pad == 0 ? null : Colors.redAccent,
+                            child: Row(
                               children: [
-                                SizedBox(width: 10),
-                                Icon(Icons.refresh),
-                                SizedBox(width: 10),
-                                Container(padding: EdgeInsets.only(top: 14), height: 40, child: Text((rel!.libelle_art_conc)))
-                              ],
-                            );
-                          },
-                          onSuggestionSelected: (suggestion) {
-                            Releve? rel = Releve.no();
-                            rel = suggestion as Releve?;
-                            searchController.text = rel!.libelle_art_conc;
-                            codebarController.text = rel.gencode_art_conc;
-
-                            setState(() {
-                              selectgencode = rel!.gencode_art_conc;
-                              id_relever = rel.id_releve;
-                              selectlibelle = rel.libelle_art_conc;
-                            });
-                          },
-                          suggestionsCallback: (pattern) {
-                            if (pattern.isNotEmpty) {
-                              return onTapSearch(pattern);
-                            } else {
-                              return [];
-                            }
-                          },
-                        )
-                      : Row(
-                          children: [
-                            Container(
-                              height: 48.4,
-                              child: ElevatedButton(
-                                onPressed: () => BarcodeScanner(),
-                                child: Icon(Icons.camera_alt),
-                                style: TextButton.styleFrom(
-                                    elevation: 0,
-                                    foregroundColor: Colors.white,
-                                    backgroundColor: Colors.blue,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(1)))),
-                              ),
-                            ),
-                            Container(
-                              width: MediaQuery.of(context).size.width - 104,
-                              child: TextFormField(
-                                controller: scanController,
-                                validator: (value) {
-                                  if (value!.isEmpty && id_choix == 1) {
-                                    return null;
-                                  } else {
-                                    return null;
-                                  }
-                                }, //index.top
-                                // textAlign: TextAlign.center,
-                                enabled: false,
-                                autocorrect: false,
-                                keyboardType: TextInputType.visiblePassword,
-                                decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.only(left: 10),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
-                                  //contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-
-                                  //labelText: "Nom",
-                                  hintText: "Libelle Code barre",
+                                Container(
+                                  height: 48.4,
+                                  child: ElevatedButton(
+                                    onPressed: () => BarcodeScanner(),
+                                    child: Icon(Icons.camera_alt),
+                                    style: TextButton.styleFrom(
+                                        elevation: 0,
+                                        foregroundColor: Colors.white,
+                                        backgroundColor: Colors.blue,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(1)))),
+                                  ),
                                 ),
-                                onChanged: (value) {
-                                  //libele = value;
-                                },
+                                Container(
+                                  width: MediaQuery.of(context).size.width - (pad == 0 ? 124 : 125.7),
+                                  child: TextFormField(
+                                    controller: scanController,
+                                    validator: (value) {
+                                      if (scanController.text.isEmpty) {
+                                        setState(() {
+                                          bas = 0;
+                                          pad = 0.7;
+                                        });
+                                      } else {
+                                        setState(() {
+                                          pad = 0;
+                                        });
+                                      }
+                                    }, //index.top
+                                    // textAlign: TextAlign.center,
+                                    enabled: false,
+                                    autocorrect: false,
+                                    keyboardType: TextInputType.visiblePassword,
+                                    decoration: InputDecoration(
+                                      contentPadding: EdgeInsets.only(left: 10),
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
+                                      //contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
 
-                                onTap: () {
-                                  print("none");
-                                },
+                                      //labelText: "Nom",
+                                      hintText: "Libelle Code barre",
+                                    ),
+                                    onChanged: (value) {},
 
-                                onSaved: (newValue) {
-                                  //nom = newValue!;
-                                },
-                                //onSubmitted: submit,
-                              ),
-                            )
-                          ],
-                        ),
-                ),
-                Container(
-                  margin: EdgeInsets.only(top: 20, left: 20, right: 20),
-                  child: TextFormField(
-                    controller: codebarController,
+                                    onTap: () {
+                                      print("none");
+                                    },
 
-                    // textAlign: TextAlign.center,
-                    enabled: false,
-                    autocorrect: false,
-                    keyboardType: TextInputType.visiblePassword,
-                    decoration: InputDecoration(
-                      contentPadding: EdgeInsets.only(left: 10),
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
-                      //contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                      prefixIcon: Container(
-                        width: 50,
-                        child: Icon(
-                          Icons.format_list_numbered,
-                          color: Colors.blue,
-                        ),
-                      ),
-                      //labelText: "Nom",
-                      hintText: "Code barre  ",
+                                    onSaved: (newValue) {
+                                      //nom = newValue!;
+                                    },
+                                    //onSubmitted: submit,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                  ),
+                  errorScan(),
+                  Container(
+                    padding: EdgeInsets.all(padcode),
+                    color: padcode == 0 ? null : Colors.redAccent,
+                    margin: EdgeInsets.only(
+                      top: 20,
                     ),
+                    child: TextFormField(
+                      controller: codebarController,
 
-                    onChanged: (value) {
-                      //libele = value;
-                    },
+                      // textAlign: TextAlign.center,
+                      enabled: false,
+                      autocorrect: false,
+                      keyboardType: TextInputType.visiblePassword,
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.only(left: 10),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
+                        //contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                        prefixIcon: Container(
+                          width: 50,
+                          child: Icon(
+                            Icons.format_list_numbered,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        //labelText: "Nom",
+                        hintText: "Code barre  ",
+                      ),
 
-                    onTap: () {
-                      print("none");
-                    },
+                      onChanged: (value) {
+                        //libele = value;
+                      },
+                      validator: (value) {
+                        if (codebarController.text.isEmpty) {
+                          setState(() {
+                            bas = 0;
+                            padcode = 0.7;
+                          });
+                        } else {
+                          setState(() {
+                            padcode = 0;
+                          });
+                        }
+                      },
+                      onTap: () {
+                        print("none");
+                      },
 
-                    onSaved: (newValue) {
-                      //nom = newValue!;
-                    },
-                    //onSubmitted: submit,
+                      onSaved: (newValue) {
+                        //nom = newValue!;
+                      },
+                      //onSubmitted: submit,
+                    ),
                   ),
-                ),
-                Container(
-                  margin: EdgeInsets.only(top: 20, left: 20, right: 20),
-                  child: TextFormField(
-                    controller: prixController,
+                  errorCodebar(),
+                  Container(
+                    margin: EdgeInsets.only(
+                      top: 20,
+                    ),
+                    child: TextFormField(
+                      controller: prixController,
 
-                    autocorrect: false,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      contentPadding: EdgeInsets.all(0),
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
-                      //contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                      autocorrect: false,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.all(0),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
+                        //contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
 
-                      //labelText: "Nom",
-                      hintText: "Entrer le Prix",
-                      prefixIcon: Container(
-                        width: 50,
-                        child: Icon(
-                          Icons.price_change_outlined,
-                          color: Colors.blue,
+                        //labelText: "Nom",
+                        hintText: "Entrer le Prix",
+                        prefixIcon: Container(
+                          width: 50,
+                          child: Icon(
+                            Icons.price_change_outlined,
+                            color: Colors.blue,
+                          ),
                         ),
                       ),
+                      onChanged: (value) {
+                        //libele = value;
+                      },
+                      onTap: () {
+                        //print(valeur);
+                      },
+                      validator: (value) => value!.isEmpty ? "Veuillez entrer le prix" : null,
+                      onSaved: (newValue) {
+                        //nom = newValue!;
+                      },
+                      //onSubmitted: submit,
                     ),
-                    onChanged: (value) {
-                      //libele = value;
-                    },
-                    onTap: () {
-                      //print(valeur);
-                    },
-                    validator: (value) => value!.isEmpty ? "Veuillez entrer le prix" : null,
-                    onSaved: (newValue) {
-                      //nom = newValue!;
-                    },
-                    //onSubmitted: submit,
                   ),
-                ),
-                Container(
-                  margin: EdgeInsets.only(top: 20, left: 50, right: 50),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      ElevatedButton.icon(
-                        label: Text("Ajouter"),
-                        onPressed: ajouter,
-                        icon: Icon(Icons.add_circle_outlined),
-                        style: TextButton.styleFrom(
-                            elevation: 0,
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.blue,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(1)))),
-                      ),
-                      ElevatedButton.icon(
-                        label: Text("Annuler"),
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Index.top(prep: widget.prepatop),
-                              ));
-                        },
-                        icon: Icon(Icons.cancel_rounded),
-                        style: TextButton.styleFrom(
-                            elevation: 0,
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.red,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(1)))),
-                      ),
-                    ],
+                  Container(
+                    margin: EdgeInsets.only(top: 20, left: 25),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Container(
+                          height: 40,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              annulerAlert("Annulation de relever");
+                              //recuperer();
+                            },
+                            // ignore: sort_child_properties_last
+                            child: Text(
+                              "ANNULER",
+                              style: TextStyle(letterSpacing: 1),
+                            ),
+                            style: TextButton.styleFrom(
+                                elevation: 0,
+                                foregroundColor: Colors.white,
+                                backgroundColor: Colors.redAccent,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(1)))),
+                          ),
+                        ),
+                        Container(
+                          height: 40,
+                          child: ElevatedButton(
+                            onPressed: () => ajouter(),
+                            // ignore: sort_child_properties_last
+                            child: Text(
+                              "AJOUTER",
+                              style: TextStyle(letterSpacing: 1),
+                            ),
+                            style: TextButton.styleFrom(
+                                elevation: 0,
+                                foregroundColor: Colors.white,
+                                backgroundColor: Colors.blue,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(1)))),
+                          ),
+                        ),
+                        Padding(padding: EdgeInsets.all(5)),
+                      ],
+                    ),
                   ),
-                )
-              ],
-            ),
+                ])),
           ),
         ),
       ),
     );
+  }
+
+  Container errorScan() {
+    if (pad != 0) {
+      return Container(
+        margin: EdgeInsets.only(top: 9, bottom: bas),
+        width: MediaQuery.of(context).size.width,
+        child: Text(
+          "Veuillez scanner le code bar",
+          style: TextStyle(color: Color.fromARGB(255, 235, 40, 26), fontSize: 12),
+        ),
+      );
+    }
+    return Container();
+  }
+
+  Container errorCodebar() {
+    if (padcode != 0) {
+      return Container(
+        margin: EdgeInsets.only(top: 9, bottom: bas),
+        width: MediaQuery.of(context).size.width,
+        child: Text(
+          "Aucun code bar generer",
+          style: TextStyle(color: Color.fromARGB(255, 235, 40, 26), fontSize: 12),
+        ),
+      );
+    }
+    return Container();
+  }
+
+  Future annulerAlert(String text) async {
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: ((BuildContext context) {
+          return AlertDialog(
+            title: Text(text),
+            actionsAlignment: MainAxisAlignment.end,
+            actions: [
+              Container(
+                width: MediaQuery.of(context).size.width,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    SizedBox(
+                      child: TextButton(
+                          style: ButtonStyle(
+                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.red)),
+                          onPressed: () {
+                            Navigator.pop(context, false);
+                          },
+                          child: Text("Non")),
+                    ),
+                    SizedBox(
+                      width: 30,
+                    ),
+                    Container(
+                      child: TextButton(
+                          style: ButtonStyle(
+                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.blue)),
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Index.top(prep: widget.prepatop),
+                                ));
+                          },
+                          child: Text("Oui")),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          );
+        }));
   }
 }

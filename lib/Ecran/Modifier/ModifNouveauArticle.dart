@@ -126,12 +126,8 @@ class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
           gencode = barcodeLocal;
           codebarCcontroller.text = gencode.toString();
         });
-      } else {
-        setState(() {});
-      }
-    } catch (e) {
-      setState(() {});
-    }
+      } else {}
+    } catch (e) {}
   }
 
   Future alertCamera() async {
@@ -237,6 +233,16 @@ class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
     descriptionController.text = widget.article.description;
     prixController.text = widget.article.prix.toString();
     codebarCcontroller.text = widget.article.gencode.toString();
+
+    if (descriptionController.text.isEmpty) {
+      setState(() {
+        tap = false;
+      });
+    } else {
+      setState(() {
+        tap = true;
+      });
+    }
   }
 
   double pad = 0;
@@ -252,10 +258,11 @@ class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
         physics: BouncingScrollPhysics(),
         child: Container(
           padding: EdgeInsets.all(30),
+          height: MediaQuery.of(context).size.height,
           child: Form(
             key: formValide,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Stack(
                   children: [
@@ -462,6 +469,17 @@ class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
                       controller: descriptionController,
                       style: TextStyle(fontSize: 19),
                       autocorrect: false,
+                      onTap: () {
+                        if (descriptionController.text.isEmpty) {
+                          setState(() {
+                            tap = false;
+                          });
+                        } else {
+                          setState(() {
+                            tap = true;
+                          });
+                        }
+                      },
                       onChanged: (value) {
                         if (value.isEmpty) {
                           setState(() {
@@ -506,12 +524,7 @@ class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
                         height: 40,
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Index(2),
-                                ));
-                            //recuperer();
+                            ModifAlert("Annuler le modification ?", 0);
                           },
                           // ignore: sort_child_properties_last
                           child: Text(
@@ -528,7 +541,7 @@ class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
                       Container(
                         height: 40,
                         child: ElevatedButton(
-                          onPressed: () => Modifier(),
+                          onPressed: () => ModifAlert("Enregistrer le modification ?", 1),
                           // ignore: sort_child_properties_last
                           child: Text(
                             "MODIFIER",
@@ -565,5 +578,54 @@ class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
       );
     }
     return Container();
+  }
+
+  Future ModifAlert(String text, int i) async {
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: ((BuildContext context) {
+          return AlertDialog(
+            title: Text(text),
+            actionsAlignment: MainAxisAlignment.end,
+            actions: [
+              Container(
+                width: MediaQuery.of(context).size.width,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    SizedBox(
+                      child: TextButton(
+                          style: ButtonStyle(
+                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.red)),
+                          onPressed: () {
+                            Navigator.pop(context, false);
+                          },
+                          child: Text("Non")),
+                    ),
+                    SizedBox(
+                      width: 30,
+                    ),
+                    Container(
+                      child: TextButton(
+                          style: ButtonStyle(
+                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.blue)),
+                          onPressed: () {
+                            return (i == 1)
+                                ? Modifier()
+                                : Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Index(2),
+                                    ));
+                          },
+                          child: Text("Oui")),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          );
+        }));
   }
 }

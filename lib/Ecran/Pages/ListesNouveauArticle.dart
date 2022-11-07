@@ -233,6 +233,19 @@ class _PagesListeState extends State<ListesNouveauArticle> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    SizedBox(
+                      width: 100,
+                      child: TextButton(
+                          style: ButtonStyle(
+                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.red)),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text("Annuler")),
+                    ),
+                    SizedBox(
+                      width: 30,
+                    ),
                     Container(
                       width: 100,
                       child: TextButton(
@@ -245,19 +258,6 @@ class _PagesListeState extends State<ListesNouveauArticle> {
                           },
                           child: Text("OK")),
                     ),
-                    SizedBox(
-                      width: 30,
-                    ),
-                    SizedBox(
-                      width: 100,
-                      child: TextButton(
-                          style: ButtonStyle(
-                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.red)),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: Text("Annuler")),
-                    )
                   ],
                 ),
               )

@@ -50,7 +50,7 @@ class _ListesPreparationState extends State<ListesPreparation> {
   //   EasyLoading.instance.dismissOnTap = false;
   // }
 
-  String ip = "197.7.2.1";
+  String ip = "10.169.7.125";
 
   Future chargeArticle() async {
     Database db = await DatabaseHelper().database;
@@ -210,8 +210,11 @@ class _ListesPreparationState extends State<ListesPreparation> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: preparation(),
+    return WillPopScope(
+      onWillPop: () => exitApp(),
+      child: Center(
+        child: preparation(),
+      ),
     );
   }
 
@@ -319,20 +322,34 @@ class _ListesPreparationState extends State<ListesPreparation> {
               textAlign: TextAlign.center,
             ),
             content: Container(
-              height: (prep.description.toString().length > 100) ? MediaQuery.of(context).size.height / 5 : MediaQuery.of(context).size.height / 8,
+              height: (prep.description.toString().length > 100) ? MediaQuery.of(context).size.height / 3 : MediaQuery.of(context).size.height / 5,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Date creation : ${prep.date_prep} "),
+                  row("Date creation  :  ", prep.date_prep),
                   SizedBox(
                     height: 5,
                   ),
-                  Text("Libelle : ${prep.libelle_prep}"),
+                  row("Libelle  :  ", prep.libelle_prep),
                   SizedBox(
                     height: 5,
                   ),
-                  (prep.description == "") ? SizedBox() : Text("Description : ${prep.description}", style: TextStyle(wordSpacing: 2, height: 1.5)),
+                  (prep.date_maj_prep != "") ? row("Date mise a jour  :  ", prep.date_maj_prep) : SizedBox(),
+                  SizedBox(
+                    height: 5,
+                  ),
+                  (prep.description == "")
+                      ? SizedBox()
+                      : Column(
+                          children: [
+                            row("Description  :  ", ""),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text(prep.description)
+                          ],
+                        ),
                   SizedBox(
                     height: 5,
                   ),
@@ -354,6 +371,21 @@ class _ListesPreparationState extends State<ListesPreparation> {
         }));
   }
 
+  Row row(String nom, String text) {
+    return Row(
+      children: [
+        Text(
+          nom,
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        Text(
+          text,
+          style: TextStyle(wordSpacing: 2),
+        ),
+      ],
+    );
+  }
+
   Future alerteDelete(Preparation prep) async {
     return showDialog(
         context: context,
@@ -371,6 +403,19 @@ class _ListesPreparationState extends State<ListesPreparation> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    SizedBox(
+                      width: 100,
+                      child: TextButton(
+                          style: ButtonStyle(
+                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.red)),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text("Annuler")),
+                    ),
+                    SizedBox(
+                      width: 30,
+                    ),
                     Container(
                       width: 100,
                       child: TextButton(
@@ -383,19 +428,6 @@ class _ListesPreparationState extends State<ListesPreparation> {
                           },
                           child: Text("OK")),
                     ),
-                    SizedBox(
-                      width: 30,
-                    ),
-                    SizedBox(
-                      width: 100,
-                      child: TextButton(
-                          style: ButtonStyle(
-                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.red)),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: Text("Annuler")),
-                    )
                   ],
                 ),
               )
@@ -421,6 +453,19 @@ class _ListesPreparationState extends State<ListesPreparation> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    SizedBox(
+                      width: 100,
+                      child: TextButton(
+                          style: ButtonStyle(
+                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.red)),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text("Annuler")),
+                    ),
+                    SizedBox(
+                      width: 30,
+                    ),
                     Container(
                       width: 100,
                       child: TextButton(
@@ -433,24 +478,60 @@ class _ListesPreparationState extends State<ListesPreparation> {
                           },
                           child: Text("OK")),
                     ),
-                    SizedBox(
-                      width: 30,
-                    ),
-                    SizedBox(
-                      width: 100,
-                      child: TextButton(
-                          style: ButtonStyle(
-                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.red)),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: Text("Annuler")),
-                    )
                   ],
                 ),
               )
             ],
           );
         }));
+  }
+
+  Future<bool> exitApp() async {
+    bool appExit = await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: ((BuildContext context) {
+          return AlertDialog(
+            title: Text("Voulez vous vraiment quitter ?"),
+            actionsAlignment: MainAxisAlignment.end,
+            actions: [
+              Container(
+                width: MediaQuery.of(context).size.width,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 100,
+                      child: TextButton(
+                          style: ButtonStyle(
+                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.red)),
+                          onPressed: () {
+                            Navigator.pop(context, false);
+                          },
+                          child: Text("Annuler")),
+                    ),
+                    SizedBox(
+                      width: 30,
+                    ),
+                    Container(
+                      width: 100,
+                      child: TextButton(
+                          style: ButtonStyle(
+                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.blue)),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            // DataPreparation().DeletePreparation(prep.id_prep);
+                            // recuperer();
+                            Navigator.of(context).pop(true);
+                          },
+                          child: Text("Oui")),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          );
+        }));
+    return appExit;
   }
 }

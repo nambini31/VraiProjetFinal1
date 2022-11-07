@@ -59,14 +59,53 @@ class _PagesNouveauArticleState extends State<AjoutNouveauArticle> {
           pad = 0.7;
         });
       } else {
-        Article article = Article.ajt(this.libele, this.prix, this.gencode, this.description, imageString, this.id_enseigne);
-        DataArticle().AjoutArticle(article);
-        // print("id = " + article.id_enseigne);
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Index(2),
-            ));
+        showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: ((BuildContext context) {
+              return AlertDialog(
+                title: Text("Enregistrer l'article ?"),
+                actionsAlignment: MainAxisAlignment.end,
+                actions: [
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        SizedBox(
+                          child: TextButton(
+                              style: ButtonStyle(
+                                  foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.red)),
+                              onPressed: () {
+                                Navigator.pop(context, false);
+                              },
+                              child: Text("Non")),
+                        ),
+                        SizedBox(
+                          width: 30,
+                        ),
+                        Container(
+                          child: TextButton(
+                              style: ButtonStyle(
+                                  foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.blue)),
+                              onPressed: () {
+                                Article article = Article.ajt(this.libele, this.prix, this.gencode, this.description, imageString, this.id_enseigne);
+                                DataArticle().AjoutArticle(article);
+                                // print("id = " + article.id_enseigne);
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Index(2),
+                                    ));
+                              },
+                              child: Text("Oui")),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              );
+            }));
       }
     } else {}
   }
@@ -229,7 +268,7 @@ class _PagesNouveauArticleState extends State<AjoutNouveauArticle> {
         physics: BouncingScrollPhysics(),
         child: Container(
           padding: EdgeInsets.all(30),
-          height: MediaQuery.of(context).size.height - 110,
+          height: MediaQuery.of(context).size.height,
           child: Form(
             key: formValide,
             child: Column(
@@ -497,14 +536,9 @@ class _PagesNouveauArticleState extends State<AjoutNouveauArticle> {
                       Container(
                         height: 40,
                         child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Index(2),
-                                ));
-                            //recuperer();
-                          },
+                          onPressed: () => annulerAlert("Annuler l'enregistrement ?"),
+                          //recuperer();
+
                           // ignore: sort_child_properties_last
                           child: Text(
                             "ANNULER",
@@ -557,5 +591,52 @@ class _PagesNouveauArticleState extends State<AjoutNouveauArticle> {
       );
     }
     return Container();
+  }
+
+  Future annulerAlert(String text) async {
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: ((BuildContext context) {
+          return AlertDialog(
+            title: Text(text),
+            actionsAlignment: MainAxisAlignment.end,
+            actions: [
+              Container(
+                width: MediaQuery.of(context).size.width,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    SizedBox(
+                      child: TextButton(
+                          style: ButtonStyle(
+                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.red)),
+                          onPressed: () {
+                            Navigator.pop(context, false);
+                          },
+                          child: Text("Non")),
+                    ),
+                    SizedBox(
+                      width: 30,
+                    ),
+                    Container(
+                      child: TextButton(
+                          style: ButtonStyle(
+                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.blue)),
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Index(2),
+                                ));
+                          },
+                          child: Text("Oui")),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          );
+        }));
   }
 }
