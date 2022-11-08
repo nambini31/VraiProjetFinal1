@@ -36,7 +36,6 @@ class _IndexState extends State<Index> {
     i = widget.i;
     i1 = widget.prep1.id_prep;
     i2 = widget.prep.id_prep;
-    print(widget.id);
   }
 
   List<Widget> pages = [Acceuil(), ListesPreparation(), ListesNouveauArticle()];

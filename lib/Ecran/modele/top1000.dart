@@ -97,6 +97,16 @@ class Top1000 {
     id_choix = map["id_choix"];
   }
 
+  void fromMapWithoutJoin(Map<String, dynamic> map) {
+    id_releve = map["id_releve"];
+    ref_art_conc = map["ref_art_conc"];
+    prix_art_conc = map["prix_art_conc"];
+    etat_art = map["etat_art"];
+    date_val_releve = map["date_val_releve"];
+    date_maj_releve = map["date_maj_releve"];
+    id_prep = map["id_prep"];
+  }
+
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {};
     map["id_releve"] = id_releve;

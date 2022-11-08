@@ -55,100 +55,103 @@ class _PagesListeState extends State<ListesNouveauArticle> {
 // ////print
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text("Listes des Articles"),
-        automaticallyImplyLeading: false,
-        // ignore: prefer_const_literals_to_create_immutables
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AjoutNouveauArticle(),
-                  ));
-            },
-            icon: Icon(Icons.add),
-          ),
-          // IconButton(
-          //     onPressed: () {
-          //       // Navigator.push(
-          //       //     context,
-          //       //     MaterialPageRoute(
-          //       //       builder: (context) => PagesNouveauArticle(),
-          //       //     ));
-          //     },
-          //     icon: Icon(Icons.more_vert))
-        ],
-      ),
-      body: GestureDetector(
-        onTap: () {
-          //////print("clicked");
-          //Slidable.of(context)!.close(duration: Duration(seconds: 0));
-        },
-        child: SlidableAutoCloseBehavior(
-          closeWhenOpened: true,
-          closeWhenTapped: true,
-          child: Container(
-            padding: EdgeInsets.only(top: 10),
-            child: Center(
-              child: (listes.isEmpty)
-                  ? AucuneDonnes()
-                  : ListView.builder(
-                      physics: BouncingScrollPhysics(),
-                      itemCount: listes.length,
-                      itemBuilder: (context, index) {
-                        Article article = listes[index];
-                        return Slidable(
-                          closeOnScroll: true,
-                          endActionPane: ActionPane(motion: ScrollMotion(), extentRatio: 0.5, children: [
-                            SlidableAction(
-                              onPressed: (context) {
-                                alerteDelete(article.id);
-                              },
-                              label: "Delete",
-                              backgroundColor: Colors.red,
-                              icon: Icons.delete,
-                            ),
-                            Padding(padding: EdgeInsets.all(2)),
-                            SlidableAction(
-                              onPressed: (context) {
-                                //nom1.text = Article.nom;
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ModifNouveauArticle.modification(article),
-                                    ));
-                              },
-                              label: "Update",
-                              backgroundColor: Colors.blue,
-                              icon: Icons.update,
-                            )
-                          ]),
-                          child: ListTile(
-                              onTap: () {
-                                alerte(article.image, article.description);
-                              },
-                              title: Center(child: Text(article.libele)),
-                              subtitle: Center(child: Text("Prix : ${article.prix.toString()} Ar          Gencode : " + article.gencode)),
-                              leading: Icon(
-                                Icons.production_quantity_limits,
-                                size: 40,
-                                color: Colors.green,
+    return WillPopScope(
+      onWillPop: () => exitApp(),
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text("Listes des Articles"),
+          automaticallyImplyLeading: false,
+          // ignore: prefer_const_literals_to_create_immutables
+          actions: [
+            IconButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AjoutNouveauArticle(),
+                    ));
+              },
+              icon: Icon(Icons.add),
+            ),
+            // IconButton(
+            //     onPressed: () {
+            //       // Navigator.push(
+            //       //     context,
+            //       //     MaterialPageRoute(
+            //       //       builder: (context) => PagesNouveauArticle(),
+            //       //     ));
+            //     },
+            //     icon: Icon(Icons.more_vert))
+          ],
+        ),
+        body: GestureDetector(
+          onTap: () {
+            //////print("clicked");
+            //Slidable.of(context)!.close(duration: Duration(seconds: 0));
+          },
+          child: SlidableAutoCloseBehavior(
+            closeWhenOpened: true,
+            closeWhenTapped: true,
+            child: Container(
+              padding: EdgeInsets.only(top: 10),
+              child: Center(
+                child: (listes.isEmpty)
+                    ? AucuneDonnes()
+                    : ListView.builder(
+                        physics: BouncingScrollPhysics(),
+                        itemCount: listes.length,
+                        itemBuilder: (context, index) {
+                          Article article = listes[index];
+                          return Slidable(
+                            closeOnScroll: true,
+                            endActionPane: ActionPane(motion: ScrollMotion(), extentRatio: 0.5, children: [
+                              SlidableAction(
+                                onPressed: (context) {
+                                  alerteDelete(article.id);
+                                },
+                                label: "Delete",
+                                backgroundColor: Colors.red,
+                                icon: Icons.delete,
                               ),
-                              trailing: (article.image != "")
-                                  ? Icon(
-                                      Icons.image,
-                                      color: Colors.blue,
-                                    )
-                                  : Icon(
-                                      Icons.broken_image_rounded,
-                                      color: Colors.redAccent,
-                                    )),
-                        );
-                      }),
+                              Padding(padding: EdgeInsets.all(2)),
+                              SlidableAction(
+                                onPressed: (context) {
+                                  //nom1.text = Article.nom;
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ModifNouveauArticle.modification(article),
+                                      ));
+                                },
+                                label: "Update",
+                                backgroundColor: Colors.blue,
+                                icon: Icons.update,
+                              )
+                            ]),
+                            child: ListTile(
+                                onTap: () {
+                                  alerte(article.image, article.description);
+                                },
+                                title: Center(child: Text(article.libele)),
+                                subtitle: Center(child: Text("Prix : ${article.prix.toString()} Ar          Gencode : " + article.gencode)),
+                                leading: Icon(
+                                  Icons.production_quantity_limits,
+                                  size: 40,
+                                  color: Colors.green,
+                                ),
+                                trailing: (article.image != "")
+                                    ? Icon(
+                                        Icons.image,
+                                        color: Colors.blue,
+                                      )
+                                    : Icon(
+                                        Icons.broken_image_rounded,
+                                        color: Colors.redAccent,
+                                      )),
+                          );
+                        }),
+              ),
             ),
           ),
         ),
@@ -346,5 +349,54 @@ class _PagesListeState extends State<ListesNouveauArticle> {
                   ],
                 );
         }));
+  }
+
+  Future<bool> exitApp() async {
+    bool appExit = await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: ((BuildContext context) {
+          return AlertDialog(
+            title: Text("Voulez vous vraiment quitter ?"),
+            actionsAlignment: MainAxisAlignment.end,
+            actions: [
+              Container(
+                width: MediaQuery.of(context).size.width,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 100,
+                      child: TextButton(
+                          style: ButtonStyle(
+                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.red)),
+                          onPressed: () {
+                            Navigator.pop(context, false);
+                          },
+                          child: Text("Annuler")),
+                    ),
+                    SizedBox(
+                      width: 30,
+                    ),
+                    Container(
+                      width: 100,
+                      child: TextButton(
+                          style: ButtonStyle(
+                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.blue)),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            // DataPreparation().DeletePreparation(prep.id_prep);
+                            // recuperer();
+                            Navigator.of(context).pop(true);
+                          },
+                          child: Text("Oui")),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          );
+        }));
+    return appExit;
   }
 }

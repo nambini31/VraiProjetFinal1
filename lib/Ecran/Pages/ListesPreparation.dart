@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names, prefer_const_constructors, unrelated_type_equality_checks
+// ignore_for_file: non_constant_identifier_names, prefer_const_constructors, unrelated_type_equality_checks, unused_local_variable
 
 import 'dart:convert';
 
@@ -12,6 +12,8 @@ import 'package:app/Ecran/modele/database_Helper.dart';
 import 'package:app/Ecran/modele/magasin.dart';
 import 'package:app/Ecran/modele/preparation.dart';
 import 'package:app/Ecran/modele/top1000.dart';
+import 'package:app/Ecran/modele/top1000.dart';
+import 'package:app/Ecran/modele/zone.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
@@ -34,22 +36,21 @@ class _ListesPreparationState extends State<ListesPreparation> {
   bool top = false;
   bool etat = false;
 
-  // loading() {
-  //   EasyLoading.instance.displayDuration = const Duration(milliseconds: 2000);
-  //   EasyLoading.instance.indicatorType = EasyLoadingIndicatorType.fadingCircle;
-  //   EasyLoading.instance.loadingStyle = EasyLoadingStyle.dark;
-  //   EasyLoading.instance.indicatorSize = 45.0;
-  //   EasyLoading.instance.radius = 10.0;
-  //   EasyLoading.instance.progressColor = Colors.yellow;
-  //   EasyLoading.instance.backgroundColor = Colors.green;
-  //   EasyLoading.instance.indicatorColor = Colors.yellow;
-  //   EasyLoading.instance.textColor = Colors.yellow;
-  //   EasyLoading.instance.maskColor = Colors.blue.withOpacity(0.5);
-  //   EasyLoading.instance.userInteractions = true;
-  //   EasyLoading.instance.dismissOnTap = false;
-  // }
+  void Transerer(int id_prep) async {
+    try {
+      var response = await http.get(Uri.parse("http://$ip/app/lib/php/select.php")).timeout(Duration(milliseconds: 2000));
 
-  String ip = "197.7.2.3";
+      if (response.statusCode == 200) {
+        await EasyLoading.show(status: 'En cours de Transfer...');
+        await DataPreparation().SelectAllOne(id_prep);
+        await EasyLoading.dismiss();
+      } else {}
+    } catch (e) {
+      EasyLoading.showError('Connection error', duration: Duration(seconds: 1));
+    }
+  }
+
+  String ip = "197.7.2.2";
 
   Future chargeArticle() async {
     Database db = await DatabaseHelper().database;
@@ -135,7 +136,7 @@ class _ListesPreparationState extends State<ListesPreparation> {
         produitlist = json.decode(response.body);
 
         produitlist.forEach((element) async {
-          Item top = Item.id(
+          Zone top = Zone.id(
             int.parse(element["zone_zn"]),
             element["libelle_zn"],
             element["lib_plus_zn"],
@@ -178,7 +179,7 @@ class _ListesPreparationState extends State<ListesPreparation> {
               int.parse(element["enseigne_releve"]),
               0,
               0,
-              element["zone_releve"]);
+              int.parse(element["zone_releve"]));
 
           try {
             await db.insert("preparation", prepa.toMap());
@@ -186,6 +187,7 @@ class _ListesPreparationState extends State<ListesPreparation> {
           } catch (e) {
             await EasyLoading.dismiss();
           }
+
           await EasyLoading.dismiss();
         });
         recuperer();
@@ -252,11 +254,11 @@ class _ListesPreparationState extends State<ListesPreparation> {
     );
   }
 
-  ActionPane? startAction(int etat) {
+  ActionPane? startAction(int etat, int id_prep) {
     var startAttente = ActionPane(motion: ScrollMotion(), extentRatio: 0.4, children: [
       SlidableAction(
         onPressed: (context) {
-          alerteTraner();
+          alerteTraner(id_prep);
         },
         label: "Transferer",
         backgroundColor: Colors.green,
@@ -304,7 +306,7 @@ class _ListesPreparationState extends State<ListesPreparation> {
                         return SingleChildScrollView(
                           padding: EdgeInsets.only(top: 10),
                           child: Slidable(
-                            startActionPane: startAction(prep.etat),
+                            startActionPane: startAction(prep.etat, prep.id_prep),
                             endActionPane: ActionPane(motion: ScrollMotion(), extentRatio: 0.5, children: [
                               SlidableAction(
                                 onPressed: (context) {
@@ -470,7 +472,7 @@ class _ListesPreparationState extends State<ListesPreparation> {
         }));
   }
 
-  Future alerteTraner() async {
+  Future alerteTraner(int id_prep) async {
     return showDialog(
         context: context,
         barrierDismissible: false,
@@ -507,8 +509,7 @@ class _ListesPreparationState extends State<ListesPreparation> {
                               foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.blue)),
                           onPressed: () {
                             Navigator.pop(context);
-                            // DataPreparation().DeletePreparation(prep.id_prep);
-                            // recuperer();
+                            Transerer(id_prep);
                           },
                           child: Text("OK")),
                     ),

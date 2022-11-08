@@ -25,9 +25,9 @@ class ListesTop1000 extends StatefulWidget {
 class _ListesTop1000State extends State<ListesTop1000> {
   late TabController tabcontrol;
 
-  List<Top1000> listesToutes = [];
-  List<Top1000> listesAttente = [];
-  List<Top1000> listesValider = [];
+  List listesToutes = [];
+  List listesAttente = [];
+  List listesValider = [];
 
   int i = 0;
 

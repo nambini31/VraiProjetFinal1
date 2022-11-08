@@ -97,6 +97,22 @@ class DataTop1000 {
     return listes;
   }
 
+  Future<List<Top1000>> SelectAllSuggestModif(int id, int id_relever) async {
+    List<Top1000> listes = [];
+    Database db = await DatabaseHelper().database;
+
+    List<Map<String, dynamic>> result =
+        await db.rawQuery("SELECT * FROM releve WHERE id_prep = ${id} AND prix_art_conc = 0 OR (id_releve = $id_relever AND prix_art_conc != 0 ) ");
+    //List<Map<String, dynamic>> resulti = await db.query("Article", where: "", orderBy: "is ASC");
+    result.forEach((MapElement) {
+      Top1000 article = Top1000();
+      article.fromMap(MapElement);
+      listes.add(article);
+    });
+
+    return listes;
+  }
+
   Future<List<Top1000>> SelectAttente(int id) async {
     List<Top1000> listes = [];
     Database db = await DatabaseHelper().database;

@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors, unrelated_type_equality_checks
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -12,8 +14,7 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 
 class Acceuil extends StatefulWidget {
-  const Acceuil({super.key});
-
+  double start = 0;
   @override
   State<Acceuil> createState() => _AcceuilState();
 }
@@ -27,66 +28,99 @@ class _AcceuilState extends State<Acceuil> {
     return DateFormat("yyyy-MM-dd HH:mm:ss").format(date);
   }
 
-  Future getData() async {
-    // Stream ping = Ping("197.7.2.146", count: 2).stream;
-
-    // final subscription = ping.listen(null);
-    // PingData rep;
-    // subscription.onData((data) {
-    //   rep = data;
-    //   if (rep.error.toString() == "unknownHost") {
-    //     print("error");
-    //   } else {
-    //     print("not error");
-    //   }
-    //   subscription.cancel();
-    // });
-
-    // try {
-    //   final response = await http.get(Uri.parse("http://192.168.137.22/app/lib/php/select.php"));
-    //   print("object");
-
-    //   if (response.statusCode == 200) {
-
-    //     print("avy a");
-    //     setState(() {
-    //       produitlist = json.decode(response.body);
-    //     });
-    //     print(produitlist[0]);
-    //   } else {
-    //     print("tsy avy");
-    //   }
-    // } catch (e) {
-    //   print("erreur");
-    // }
-  }
+  // int start = 0;
+  //
+  // late Timer time;
+  // void startTime() {
+  //   time = Timer.periodic(
+  //     Duration(seconds: 1),
+  //     (timer) {
+  //       if (start == 1) {
+  //         setState(() {
+  //           end = false;
+  //           start = 0;
+  //         });
+  //         time.cancel();
+  //       } else {
+  //         start++;
+  //         setState(() {
+  //           end = true;
+  //         });
+  //       }
+  //     },
+  //   );
+  // }
 
   @override
   void initState() {
     super.initState();
-    getData();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text("ACCEUIL"),
-        automaticallyImplyLeading: false,
-      ),
-      body: Center(
-        child: Column(
-          children: [
-            Text("ate ${dateTime()}"),
-            ElevatedButton(
-                onPressed: () {
-                  getData();
-                },
-                child: Text("Charger"))
-          ],
+    return WillPopScope(
+      onWillPop: () => exitApp(),
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: Text("ghghh"),
+          automaticallyImplyLeading: false,
+        ),
+        body: Center(
+          child: Column(
+            children: [Text("ate ${dateTime()}"), ElevatedButton(onPressed: () {}, child: Text("Charger"))],
+          ),
         ),
       ),
     );
+  }
+
+  Future<bool> exitApp() async {
+    bool appExit = await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: ((BuildContext context) {
+          return AlertDialog(
+            title: Text("Voulez vous vraiment quitter ?"),
+            actionsAlignment: MainAxisAlignment.end,
+            actions: [
+              Container(
+                width: MediaQuery.of(context).size.width,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 100,
+                      child: TextButton(
+                          style: ButtonStyle(
+                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.red)),
+                          onPressed: () {
+                            Navigator.pop(context, false);
+                          },
+                          child: Text("Annuler")),
+                    ),
+                    SizedBox(
+                      width: 30,
+                    ),
+                    Container(
+                      width: 100,
+                      child: TextButton(
+                          style: ButtonStyle(
+                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.blue)),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            // DataPreparation().DeletePreparation(prep.id_prep);
+                            // recuperer();
+                            Navigator.of(context).pop(true);
+                          },
+                          child: Text("Oui")),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          );
+        }));
+    return appExit;
   }
 }

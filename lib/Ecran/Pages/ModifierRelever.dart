@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors, avoid_function_literals_in_foreach_calls, prefer_const_literals_to_create_immutables, unused_local_variable, non_constant_identifier_names, prefer_is_empty, unnecessary_null_comparison, use_key_in_widget_constructors
 
+import 'dart:async';
+
 import 'package:app/Ecran/Pages/index.dart';
 import 'package:app/Ecran/modele/preparation.dart';
 import 'package:intl/intl.dart';
@@ -27,7 +29,7 @@ class _ModifierReleverState extends State<ModifierRelever> {
   String selectlibelle = "";
   int id_choix = 1;
   int id_relever = 0;
-
+  String scanError = "";
   double pad = 0;
   double padcode = 0;
   double bas = 0;
@@ -137,8 +139,8 @@ class _ModifierReleverState extends State<ModifierRelever> {
   bool suggeest = true;
 
   Future<List<Releve>> onTapSearch(String query) async {
-    List<Top1000> listesToutes = [];
-    await DataTop1000().SelectAllSuggest(widget.top1000.id_prep).then((value) {
+    List listesToutes = [];
+    await DataTop1000().SelectAllSuggestModif(widget.top1000.id_prep, widget.top1000.id_releve).then((value) {
       listesToutes = value;
     });
     List<Releve> search = [];
@@ -152,6 +154,26 @@ class _ModifierReleverState extends State<ModifierRelever> {
     return search;
   }
 
+  late Timer time;
+
+  bool end = false;
+  void starttime(int sec) {
+    setState(() {
+      end = true;
+    });
+    time = Timer.periodic(
+      Duration(seconds: sec),
+      (timer) {
+        if (timer.tick == 1) {
+          setState(() {
+            end = false;
+          });
+          time.cancel();
+        }
+      },
+    );
+  }
+
   Future BarcodeScanner() async {
     String barcodeLocal = "";
     try {
@@ -160,7 +182,6 @@ class _ModifierReleverState extends State<ModifierRelever> {
         Map<String, dynamic> selectlibell = await DataTop1000().SelectLibelle(barcodeLocal);
         print(barcodeLocal);
         if (selectlibell["prix_art_conc"] == 0) {
-          print("relever non faite");
           setState(() {
             codebarController.text = barcodeLocal;
             selectgencode = barcodeLocal;
@@ -168,11 +189,26 @@ class _ModifierReleverState extends State<ModifierRelever> {
             id_relever = selectlibell["id_releve"];
           });
           scanController.text = selectlibell["libelle_art_conc"];
-        } else {}
+        } else {
+          if (selectlibell["id_releve"] == widget.top1000.id_releve) {
+            setState(() {
+              codebarController.text = barcodeLocal;
+              selectgencode = barcodeLocal;
+              selectlibelle = selectlibell["libelle_art_conc"];
+              id_relever = selectlibell["id_releve"];
+            });
+            scanController.text = selectlibell["libelle_art_conc"];
+          } else {
+            scanError = "Relever d'article deja faite";
+            starttime(10);
+          }
+        }
       } else {}
     } catch (e) {
       setState(() {
         id_relever = 0;
+        scanError = "Gencode introuvable : $barcodeLocal";
+        starttime(15);
       });
     }
   }
@@ -193,336 +229,355 @@ class _ModifierReleverState extends State<ModifierRelever> {
             },
             icon: Icon(Icons.arrow_back)),
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
-          child: Container(
-            padding: EdgeInsets.all(30),
-            child: Form(
-                key: formValide,
-                child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Text("ID RELEVER : $id_relever"),
-                  Padding(padding: EdgeInsets.all(12)),
-                  Container(
-                    margin: EdgeInsets.only(top: 20),
-                    child: DropdownButtonFormField2(
-                      value: id_choix.toString(),
-                      items: listesvrai,
-                      hint: Text("Choix Relever"),
-                      onChanged: (value) {
-                        searchController.text = "";
-                        scanController.text = "";
-                        prixController.text = "";
-                        codebarController.text = "";
-                        setState(() {
-                          id_choix = int.parse(value.toString());
-                          if (id_choix == 1) {
-                            pad = 0;
-                          }
-                          id_relever = 0;
-                        });
-                      },
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.all(12),
-                        filled: true,
-                        //hintText: "Magasin",
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
-                        //contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-
-                        prefixIcon: Icon(
-                          Icons.select_all,
-                          color: Colors.blue,
-                        ),
-                      ),
+      body: SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            (end == false)
+                ? SizedBox()
+                : Container(
+                    color: Colors.red,
+                    height: 30,
+                    width: MediaQuery.of(context).size.width,
+                    child: Text(
+                      scanError,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(wordSpacing: 2, height: 1.6, fontSize: 19, color: Colors.white),
                     ),
                   ),
-                  Container(
-                    margin: EdgeInsets.only(top: 20),
-                    child: (id_choix == 1)
-                        ? TypeAheadFormField(
-                            validator: (value) => (value!.isEmpty || searchController.text != selectlibelle) ? "Aucun article choisit" : null,
-                            textFieldConfiguration: TextFieldConfiguration(
-                              controller: searchController,
-
-                              autocorrect: false,
-                              keyboardType: TextInputType.visiblePassword,
-                              decoration: InputDecoration(
-                                contentPadding: EdgeInsets.all(0),
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
-                                //contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-
-                                //labelText: "Nom",
-                                hintText: "Rechercher article",
-                                prefixIcon: Container(
-                                  width: 50,
-                                  child: Icon(
-                                    Icons.search,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                              ),
-
-                              onTap: () {},
-
-                              // validator: (value) => value!.isEmpty ? "Veuillez entrer la designation" : null,
-                              // onSaved: (newValue) {
-                              //   //nom = newValue!;
-                              // },
-                            ),
-                            noItemsFoundBuilder: (context) => SizedBox(
-                              height: 40,
-                              child: Center(
-                                child: Text("Article introuvable"),
-                              ),
-                            ),
-                            suggestionsBoxDecoration: SuggestionsBoxDecoration(
-                                constraints: BoxConstraints(maxHeight: suggeest ? 200 : 0),
-                                elevation: 4.0,
-                                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5))),
-                            itemBuilder: (context, itemData) {
-                              Releve? rel = Releve.no();
-                              rel = itemData as Releve?;
-                              return Row(
-                                children: [
-                                  SizedBox(width: 10),
-                                  Icon(Icons.refresh),
-                                  SizedBox(width: 10),
-                                  Container(padding: EdgeInsets.only(top: 14), height: 40, child: Text((rel!.libelle_art_conc)))
-                                ],
-                              );
-                            },
-                            onSuggestionSelected: (suggestion) {
-                              Releve? rel = Releve.no();
-                              rel = suggestion as Releve?;
-                              searchController.text = rel!.libelle_art_conc;
-                              codebarController.text = rel.gencode_art_conc;
-
-                              setState(() {
-                                selectgencode = rel!.gencode_art_conc;
-                                id_relever = rel.id_releve;
-                                selectlibelle = rel.libelle_art_conc;
-                              });
-                            },
-                            suggestionsCallback: (pattern) {
-                              if (pattern.isNotEmpty) {
-                                return onTapSearch(pattern);
-                              } else {
-                                return [];
+            SizedBox(
+              height: 10,
+            ),
+            Center(
+              child: Container(
+                padding: EdgeInsets.all(30),
+                child: Form(
+                    key: formValide,
+                    child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      Text("ID RELEVER : $id_relever"),
+                      Padding(padding: EdgeInsets.all(12)),
+                      Container(
+                        margin: EdgeInsets.only(top: 20),
+                        child: DropdownButtonFormField2(
+                          value: id_choix.toString(),
+                          items: listesvrai,
+                          hint: Text("Choix Relever"),
+                          onChanged: (value) {
+                            searchController.text = "";
+                            scanController.text = "";
+                            prixController.text = "";
+                            codebarController.text = "";
+                            setState(() {
+                              id_choix = int.parse(value.toString());
+                              if (id_choix == 1) {
+                                pad = 0;
                               }
-                            },
-                          )
-                        : Container(
-                            padding: EdgeInsets.all(pad),
-                            color: pad == 0 ? null : Colors.redAccent,
-                            child: Row(
-                              children: [
-                                Container(
-                                  height: 48.4,
-                                  child: ElevatedButton(
-                                    onPressed: () => BarcodeScanner(),
-                                    child: Icon(Icons.camera_alt),
-                                    style: TextButton.styleFrom(
-                                        elevation: 0,
-                                        foregroundColor: Colors.white,
-                                        backgroundColor: Colors.blue,
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(1)))),
+                              id_relever = 0;
+                            });
+                          },
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.all(12),
+                            filled: true,
+                            //hintText: "Magasin",
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
+                            //contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+
+                            prefixIcon: Icon(
+                              Icons.select_all,
+                              color: Colors.blue,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(top: 20),
+                        child: (id_choix == 1)
+                            ? TypeAheadFormField(
+                                validator: (value) => (value!.isEmpty || searchController.text != selectlibelle) ? "Aucun article choisit" : null,
+                                textFieldConfiguration: TextFieldConfiguration(
+                                  controller: searchController,
+
+                                  autocorrect: false,
+                                  keyboardType: TextInputType.visiblePassword,
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.all(0),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
+                                    //contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+
+                                    //labelText: "Nom",
+                                    hintText: "Rechercher article",
+                                    prefixIcon: Container(
+                                      width: 50,
+                                      child: Icon(
+                                        Icons.search,
+                                        color: Colors.blue,
+                                      ),
+                                    ),
+                                  ),
+
+                                  onTap: () {},
+
+                                  // validator: (value) => value!.isEmpty ? "Veuillez entrer la designation" : null,
+                                  // onSaved: (newValue) {
+                                  //   //nom = newValue!;
+                                  // },
+                                ),
+                                noItemsFoundBuilder: (context) => SizedBox(
+                                  height: 40,
+                                  child: Center(
+                                    child: Text("Article introuvable"),
                                   ),
                                 ),
-                                Container(
-                                  width: MediaQuery.of(context).size.width - (pad == 0 ? 124 : 125.7),
-                                  child: TextFormField(
-                                    controller: scanController,
-                                    validator: (value) {
-                                      if (scanController.text.isEmpty) {
-                                        setState(() {
-                                          bas = 0;
-                                          pad = 0.7;
-                                        });
-                                      } else {
-                                        setState(() {
-                                          pad = 0;
-                                        });
-                                      }
-                                    }, //index.top
-                                    // textAlign: TextAlign.center,
-                                    enabled: false,
-                                    autocorrect: false,
-                                    keyboardType: TextInputType.visiblePassword,
-                                    decoration: InputDecoration(
-                                      contentPadding: EdgeInsets.only(left: 10),
-                                      filled: true,
-                                      fillColor: Colors.white,
-                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
-                                      //contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                                suggestionsBoxDecoration: SuggestionsBoxDecoration(
+                                    constraints: BoxConstraints(maxHeight: suggeest ? 200 : 0),
+                                    elevation: 4.0,
+                                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5))),
+                                itemBuilder: (context, itemData) {
+                                  Releve? rel = Releve.no();
+                                  rel = itemData as Releve?;
+                                  return Row(
+                                    children: [
+                                      SizedBox(width: 10),
+                                      Icon(Icons.refresh),
+                                      SizedBox(width: 10),
+                                      Container(padding: EdgeInsets.only(top: 14), height: 40, child: Text((rel!.libelle_art_conc)))
+                                    ],
+                                  );
+                                },
+                                onSuggestionSelected: (suggestion) {
+                                  Releve? rel = Releve.no();
+                                  rel = suggestion as Releve?;
+                                  searchController.text = rel!.libelle_art_conc;
+                                  codebarController.text = rel.gencode_art_conc;
 
-                                      //labelText: "Nom",
-                                      hintText: "Libelle Code barre",
+                                  setState(() {
+                                    selectgencode = rel!.gencode_art_conc;
+                                    id_relever = rel.id_releve;
+                                    selectlibelle = rel.libelle_art_conc;
+                                  });
+                                },
+                                suggestionsCallback: (pattern) {
+                                  if (pattern.isNotEmpty) {
+                                    return onTapSearch(pattern);
+                                  } else {
+                                    return [];
+                                  }
+                                },
+                              )
+                            : Container(
+                                padding: EdgeInsets.all(pad),
+                                color: pad == 0 ? null : Colors.redAccent,
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      height: 48.4,
+                                      child: ElevatedButton(
+                                        onPressed: () => BarcodeScanner(),
+                                        child: Icon(Icons.camera_alt),
+                                        style: TextButton.styleFrom(
+                                            elevation: 0,
+                                            foregroundColor: Colors.white,
+                                            backgroundColor: Colors.blue,
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(1)))),
+                                      ),
                                     ),
-                                    onChanged: (value) {},
+                                    Container(
+                                      width: MediaQuery.of(context).size.width - (pad == 0 ? 124 : 125.7),
+                                      child: TextFormField(
+                                        controller: scanController,
+                                        validator: (value) {
+                                          if (scanController.text.isEmpty) {
+                                            setState(() {
+                                              bas = 0;
+                                              pad = 0.7;
+                                            });
+                                          } else {
+                                            setState(() {
+                                              pad = 0;
+                                            });
+                                          }
+                                        }, //index.top
+                                        // textAlign: TextAlign.center,
+                                        enabled: false,
+                                        autocorrect: false,
+                                        keyboardType: TextInputType.visiblePassword,
+                                        decoration: InputDecoration(
+                                          contentPadding: EdgeInsets.only(left: 10),
+                                          filled: true,
+                                          fillColor: Colors.white,
+                                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
+                                          //contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
 
-                                    onTap: () {
-                                      print("none");
-                                    },
+                                          //labelText: "Nom",
+                                          hintText: "Libelle Code barre",
+                                        ),
+                                        onChanged: (value) {},
 
-                                    onSaved: (newValue) {
-                                      //nom = newValue!;
-                                    },
-                                    //onSubmitted: submit,
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                  ),
-                  errorScan(),
-                  Container(
-                    padding: EdgeInsets.all(padcode),
-                    color: padcode == 0 ? null : Colors.redAccent,
-                    margin: EdgeInsets.only(
-                      top: 20,
-                    ),
-                    child: TextFormField(
-                      controller: codebarController,
+                                        onTap: () {
+                                          print("none");
+                                        },
 
-                      // textAlign: TextAlign.center,
-                      enabled: false,
-                      autocorrect: false,
-                      keyboardType: TextInputType.visiblePassword,
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.only(left: 10),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
-                        //contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                        prefixIcon: Container(
-                          width: 50,
-                          child: Icon(
-                            Icons.format_list_numbered,
-                            color: Colors.blue,
-                          ),
-                        ),
-                        //labelText: "Nom",
-                        hintText: "Code barre  ",
+                                        onSaved: (newValue) {
+                                          //nom = newValue!;
+                                        },
+                                        //onSubmitted: submit,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
                       ),
+                      errorScan(),
+                      Container(
+                        padding: EdgeInsets.all(padcode),
+                        color: padcode == 0 ? null : Colors.redAccent,
+                        margin: EdgeInsets.only(
+                          top: 20,
+                        ),
+                        child: TextFormField(
+                          controller: codebarController,
 
-                      onChanged: (value) {
-                        //libele = value;
-                      },
-                      validator: (value) {
-                        if (codebarController.text.isEmpty) {
-                          setState(() {
-                            bas = 0;
-                            padcode = 0.7;
-                          });
-                        } else {
-                          setState(() {
-                            padcode = 0;
-                          });
-                        }
-                      },
-                      onTap: () {
-                        print("none");
-                      },
-
-                      onSaved: (newValue) {
-                        //nom = newValue!;
-                      },
-                      //onSubmitted: submit,
-                    ),
-                  ),
-                  errorCodebar(),
-                  Container(
-                    margin: EdgeInsets.only(
-                      top: 20,
-                    ),
-                    child: TextFormField(
-                      controller: prixController,
-
-                      autocorrect: false,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.all(0),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
-                        //contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-
-                        //labelText: "Nom",
-                        hintText: "Entrer le Prix",
-                        prefixIcon: Container(
-                          width: 50,
-                          child: Icon(
-                            Icons.price_change_outlined,
-                            color: Colors.blue,
+                          // textAlign: TextAlign.center,
+                          enabled: false,
+                          autocorrect: false,
+                          keyboardType: TextInputType.visiblePassword,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.only(left: 10),
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
+                            //contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                            prefixIcon: Container(
+                              width: 50,
+                              child: Icon(
+                                Icons.format_list_numbered,
+                                color: Colors.blue,
+                              ),
+                            ),
+                            //labelText: "Nom",
+                            hintText: "Code barre  ",
                           ),
+
+                          onChanged: (value) {
+                            //libele = value;
+                          },
+                          validator: (value) {
+                            if (codebarController.text.isEmpty) {
+                              setState(() {
+                                bas = 0;
+                                padcode = 0.7;
+                              });
+                            } else {
+                              setState(() {
+                                padcode = 0;
+                              });
+                            }
+                          },
+                          onTap: () {
+                            print("none");
+                          },
+
+                          onSaved: (newValue) {
+                            //nom = newValue!;
+                          },
+                          //onSubmitted: submit,
                         ),
                       ),
-                      onChanged: (value) {
-                        //libele = value;
-                      },
-                      onTap: () {
-                        //print(valeur);
-                      },
-                      validator: (value) => value!.isEmpty ? "Veuillez entrer le prix" : null,
-                      onSaved: (newValue) {
-                        //nom = newValue!;
-                      },
-                      //onSubmitted: submit,
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(top: 20, left: 25),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Container(
-                          height: 40,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => Index.top(prep: widget.prepatop),
-                                  ));
-                              //recuperer();
-                            },
-                            // ignore: sort_child_properties_last
-                            child: Text(
-                              "ANNULER",
-                              style: TextStyle(letterSpacing: 1),
-                            ),
-                            style: TextButton.styleFrom(
-                                elevation: 0,
-                                foregroundColor: Colors.white,
-                                backgroundColor: Colors.redAccent,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(1)))),
-                          ),
+                      errorCodebar(),
+                      Container(
+                        margin: EdgeInsets.only(
+                          top: 20,
                         ),
-                        Container(
-                          height: 40,
-                          child: ElevatedButton(
-                            onPressed: () => Modifier(),
-                            // ignore: sort_child_properties_last
-                            child: Text(
-                              "MODIFIER",
-                              style: TextStyle(letterSpacing: 1),
+                        child: TextFormField(
+                          controller: prixController,
+
+                          autocorrect: false,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.all(0),
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(1)),
+                            //contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+
+                            //labelText: "Nom",
+                            hintText: "Entrer le Prix",
+                            prefixIcon: Container(
+                              width: 50,
+                              child: Icon(
+                                Icons.price_change_outlined,
+                                color: Colors.blue,
+                              ),
                             ),
-                            style: TextButton.styleFrom(
-                                elevation: 0,
-                                foregroundColor: Colors.white,
-                                backgroundColor: Colors.blue,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(1)))),
                           ),
+                          onChanged: (value) {
+                            //libele = value;
+                          },
+                          onTap: () {
+                            //print(valeur);
+                          },
+                          validator: (value) => value!.isEmpty ? "Veuillez entrer le prix" : null,
+                          onSaved: (newValue) {
+                            //nom = newValue!;
+                          },
+                          //onSubmitted: submit,
                         ),
-                        Padding(padding: EdgeInsets.all(5)),
-                      ],
-                    ),
-                  ),
-                ])),
-          ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(top: 20, left: 25),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Container(
+                              height: 40,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => Index.top(prep: widget.prepatop),
+                                      ));
+                                  //recuperer();
+                                },
+                                // ignore: sort_child_properties_last
+                                child: Text(
+                                  "ANNULER",
+                                  style: TextStyle(letterSpacing: 1),
+                                ),
+                                style: TextButton.styleFrom(
+                                    elevation: 0,
+                                    foregroundColor: Colors.white,
+                                    backgroundColor: Colors.redAccent,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(1)))),
+                              ),
+                            ),
+                            Container(
+                              height: 40,
+                              child: ElevatedButton(
+                                onPressed: () => Modifier(),
+                                // ignore: sort_child_properties_last
+                                child: Text(
+                                  "MODIFIER",
+                                  style: TextStyle(letterSpacing: 1),
+                                ),
+                                style: TextButton.styleFrom(
+                                    elevation: 0,
+                                    foregroundColor: Colors.white,
+                                    backgroundColor: Colors.blue,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(bottomLeft: Radius.circular(1)))),
+                              ),
+                            ),
+                            Padding(padding: EdgeInsets.all(5)),
+                          ],
+                        ),
+                      ),
+                    ])),
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -77,6 +77,12 @@ class Preparation {
     id_zone = map["id_zone"];
   }
 
+  void fromMapWithoutJoin(Map<String, dynamic> map) {
+    id_prep = map["id_prep"];
+    date_maj_prep = map["date_maj_prep"];
+    etat = map["etat"];
+  }
+
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {};
 
