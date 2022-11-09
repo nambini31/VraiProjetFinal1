@@ -32,7 +32,7 @@ class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
   String gencode = "";
   int id_enseigne = 0;
   int id = 0;
-  int prix = 0;
+  double prix = 0;
   String libele = "";
   String description = "";
   String imageString = "rien";
@@ -338,7 +338,8 @@ class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
                     controller: prixController,
                     style: TextStyle(fontSize: 19),
                     autocorrect: false,
-                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
+                    keyboardType: TextInputType.numberWithOptions(decimal: true),
                     decoration: InputDecoration(
                       contentPadding: EdgeInsets.only(top: 3),
                       filled: true,
@@ -355,7 +356,7 @@ class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
                     ),
                     onChanged: (value) {
                       try {
-                        prix = int.parse(value);
+                        prix = double.parse(value);
                       } catch (e) {
                         //print("null prix");
                       }

@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:app/Ecran/Pages/index.dart';
 import 'package:app/Ecran/modele/preparation.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:app/Ecran/modele/dataTop1000.dart';
 import 'package:app/Ecran/modele/releve.dart';
@@ -102,7 +103,7 @@ class _ModifierReleverState extends State<ModifierRelever> {
                               style: ButtonStyle(
                                   foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.blue)),
                               onPressed: () {
-                                Releve releve = Releve.update(id_relever, prixController.text, dateTime(), id_choix);
+                                Releve releve = Releve.update(id_relever, double.parse(prixController.text), dateTime(), id_choix);
                                 DataTop1000().UpdateReleve(releve, widget.top1000.id_prep);
 
                                 Navigator.push(
@@ -183,6 +184,7 @@ class _ModifierReleverState extends State<ModifierRelever> {
         print(barcodeLocal);
         if (selectlibell["prix_art_conc"] == 0) {
           setState(() {
+            end = false;
             codebarController.text = barcodeLocal;
             selectgencode = barcodeLocal;
             selectlibelle = selectlibell["libelle_art_conc"];
@@ -192,6 +194,7 @@ class _ModifierReleverState extends State<ModifierRelever> {
         } else {
           if (selectlibell["id_releve"] == widget.top1000.id_releve) {
             setState(() {
+              end = false;
               codebarController.text = barcodeLocal;
               selectgencode = barcodeLocal;
               selectlibelle = selectlibell["libelle_art_conc"];
@@ -495,7 +498,8 @@ class _ModifierReleverState extends State<ModifierRelever> {
                           controller: prixController,
 
                           autocorrect: false,
-                          keyboardType: TextInputType.number,
+                          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
+                          keyboardType: TextInputType.numberWithOptions(decimal: true),
                           decoration: InputDecoration(
                             contentPadding: EdgeInsets.all(0),
                             filled: true,

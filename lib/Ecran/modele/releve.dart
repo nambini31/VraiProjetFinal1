@@ -4,17 +4,17 @@ class Releve {
   int _id_releve = 0;
   String _libelle_art_conc = "";
   String _gencode_art_conc = "";
-  String _prix_art_conc = "";
   String _date_maj_releve = "";
   int _id_choix = 0;
+  double _prix_art_conc = 0;
+
+  get prix_art_conc => this._prix_art_conc;
+
+  set prix_art_conc(value) => this._prix_art_conc = value;
 
   int get id_choix => this._id_choix;
 
   set id_choix(int value) => this._id_choix = value;
-
-  String get prix_art_conc => this._prix_art_conc;
-
-  set prix_art_conc(String value) => this._prix_art_conc = value;
 
   get date_maj_releve => this._date_maj_releve;
 

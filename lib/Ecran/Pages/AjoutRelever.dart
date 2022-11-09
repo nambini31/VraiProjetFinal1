@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:app/Ecran/Pages/index.dart';
 import 'package:app/Ecran/modele/preparation.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:app/Ecran/modele/dataTop1000.dart';
 import 'package:app/Ecran/modele/releve.dart';
@@ -72,6 +73,7 @@ class _ReleverState extends State<Relever> {
         if (selectlibell["prix_art_conc"] == 0) {
           print("relever non faite");
           setState(() {
+            end = false;
             codebarController.text = barcodeLocal;
             selectgencode = barcodeLocal;
             selectlibelle = selectlibell["libelle_art_conc"];
@@ -138,7 +140,7 @@ class _ReleverState extends State<Relever> {
                               style: ButtonStyle(
                                   foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.blue)),
                               onPressed: () {
-                                Releve releve = Releve.update(id_relever, prixController.text, dateTime(), id_choix);
+                                Releve releve = Releve.update(id_relever, double.parse(prixController.text), dateTime(), id_choix);
                                 DataTop1000().UpdateReleve(releve, widget.prepatop.id_prep);
 
                                 Navigator.push(
@@ -479,7 +481,8 @@ class _ReleverState extends State<Relever> {
                           controller: prixController,
 
                           autocorrect: false,
-                          keyboardType: TextInputType.number,
+                          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
+                          keyboardType: TextInputType.numberWithOptions(decimal: true),
                           decoration: InputDecoration(
                             contentPadding: EdgeInsets.all(0),
                             filled: true,

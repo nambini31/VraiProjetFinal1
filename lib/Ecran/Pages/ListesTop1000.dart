@@ -259,7 +259,7 @@ class _ListesTop1000State extends State<ListesTop1000> {
     );
   }
 
-  Icon icone(int etat, int prix) {
+  Icon icone(int etat, double prix) {
     var iconValide = Icon(
       Icons.check_circle,
       color: Colors.green,
@@ -318,7 +318,7 @@ class _ListesTop1000State extends State<ListesTop1000> {
   }
 
 // //print
-  ActionPane? startAction(int etat, int prix, int id_rel) {
+  ActionPane? startAction(int etat, double prix, int id_rel) {
     var startAttente = ActionPane(motion: ScrollMotion(), extentRatio: 0.4, children: [
       SlidableAction(
         onPressed: (context) {
@@ -436,6 +436,19 @@ class _ListesTop1000State extends State<ListesTop1000> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    SizedBox(
+                      width: 100,
+                      child: TextButton(
+                          style: ButtonStyle(
+                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.red)),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text("NON")),
+                    ),
+                    SizedBox(
+                      width: 30,
+                    ),
                     Container(
                       width: 100,
                       child: TextButton(
@@ -447,19 +460,6 @@ class _ListesTop1000State extends State<ListesTop1000> {
                           },
                           child: Text("OUI")),
                     ),
-                    SizedBox(
-                      width: 30,
-                    ),
-                    SizedBox(
-                      width: 100,
-                      child: TextButton(
-                          style: ButtonStyle(
-                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.red)),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: Text("NON")),
-                    )
                   ],
                 ),
               )
@@ -485,6 +485,19 @@ class _ListesTop1000State extends State<ListesTop1000> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    SizedBox(
+                      width: 100,
+                      child: TextButton(
+                          style: ButtonStyle(
+                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.red)),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: Text("NON")),
+                    ),
+                    SizedBox(
+                      width: 30,
+                    ),
                     Container(
                       width: 100,
                       child: TextButton(
@@ -495,19 +508,6 @@ class _ListesTop1000State extends State<ListesTop1000> {
                             validerRelever(id_releve, widget.preptop.id_prep);
                           },
                           child: Text("OUI")),
-                    ),
-                    SizedBox(
-                      width: 30,
-                    ),
-                    SizedBox(
-                      width: 100,
-                      child: TextButton(
-                          style: ButtonStyle(
-                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.red)),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: Text("NON")),
                     )
                   ],
                 ),
@@ -600,7 +600,7 @@ class _ListesTop1000State extends State<ListesTop1000> {
         }));
   }
 
-  String TextPrix(int prix) {
+  String TextPrix(double prix) {
     if (prix != 0) {
       return "$prix Ar";
     } else {

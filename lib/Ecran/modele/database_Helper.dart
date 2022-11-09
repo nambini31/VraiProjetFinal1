@@ -20,7 +20,7 @@ class DatabaseHelper {
 
   Future create() async {
     Directory directory = await getApplicationSupportDirectory();
-    String dataDirectory = join(directory.path, "data.db");
+    String dataDirectory = join(directory.path, "data12.db");
     var bdd = await openDatabase(
       dataDirectory,
       version: 1,
@@ -47,7 +47,7 @@ class DatabaseHelper {
           CREATE TABLE art_nouv( 
           id	INTEGER PRIMARY KEY, 
           libele	TEXT NOT NULL,
-          prix	INTEGER NOT NULL,
+          prix	REAL NOT NULL,
           gencode	TEXT NULL,
           id_enseigne	INTEGER NOT NULL,
           image TEXT NULL,
@@ -77,12 +77,12 @@ class DatabaseHelper {
          ref_art TEXT NULL,
          libelle_art TEXT NULL,
          gencode_art TEXT NULL,
-         prix_art INTEGER NULL,
+         prix_art REAL NULL,
         
          ref_art_conc TEXT NULL,
          libelle_art_conc TEXT NULL,
          gencode_art_conc TEXT NULL,
-         prix_art_conc INTEGER NULL,
+         prix_art_conc REAL NULL,
 
          etat_art INTEGER  NULL,
          date_maj_releve TEXT NULL,

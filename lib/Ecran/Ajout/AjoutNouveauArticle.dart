@@ -11,6 +11,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:image_picker/image_picker.dart';
@@ -32,7 +33,7 @@ class _PagesNouveauArticleState extends State<AjoutNouveauArticle> {
   String gencode = "";
   String description = "";
   int id_enseigne = 0;
-  int prix = 0;
+  double prix = 0;
   String libele = "";
   String imageString = "";
   File? fichierImage;
@@ -355,7 +356,9 @@ class _PagesNouveauArticleState extends State<AjoutNouveauArticle> {
                     style: TextStyle(fontSize: 19),
 
                     autocorrect: false,
-                    keyboardType: TextInputType.number,
+
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}'))],
+                    keyboardType: TextInputType.numberWithOptions(decimal: true),
                     decoration: InputDecoration(
                       contentPadding: EdgeInsets.only(top: 3),
                       filled: true,
@@ -373,7 +376,7 @@ class _PagesNouveauArticleState extends State<AjoutNouveauArticle> {
                     onChanged: (value) {
                       setState(() {
                         try {
-                          prix = int.parse(value);
+                          prix = double.parse(value);
                         } catch (e) {
                           ////print("null prix");
                         }

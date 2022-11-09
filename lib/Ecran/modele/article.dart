@@ -6,7 +6,7 @@ class Article {
 
   String _libele = "";
 
-  int _prix = 0;
+  double _prix = 0;
 
   String _gencode = "";
 

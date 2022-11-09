@@ -35,170 +35,14 @@ class _ListesPreparationState extends State<ListesPreparation> {
   int id = 0;
   bool top = false;
   bool etat = false;
-
-  void Transerer(int id_prep) async {
-    try {
-      var response = await http.get(Uri.parse("http://$ip/app/lib/php/select.php")).timeout(Duration(milliseconds: 2000));
-
-      if (response.statusCode == 200) {
-        await EasyLoading.show(status: 'En cours de Transfer...');
-        await DataPreparation().SelectAllOne(id_prep);
-        await EasyLoading.dismiss();
-      } else {}
-    } catch (e) {
-      EasyLoading.showError('Connection error', duration: Duration(seconds: 1));
-    }
-  }
-
   String ip = "197.7.2.2";
 
-  Future chargeArticle() async {
-    Database db = await DatabaseHelper().database;
-    //await db.rawDelete("DELETE FROM releve");
-    List produitlist = [];
+  void Transerer(int id_prep) async {
+    print(await DataTop1000().SelectNombreTop1000Mysql(id_prep, ip));
 
-    try {
-      var response = await http.get(Uri.parse("http://$ip/app/lib/php/selectArticle.php")).timeout(Duration(seconds: 4));
+    print(await DataTop1000().SelectNombreTop1000(id_prep));
 
-      if (response.statusCode == 200) {
-        produitlist = json.decode(response.body);
-
-        produitlist.forEach((element) async {
-          Top1000 top1000 = Top1000.id(
-              int.parse(element["id_rel_rel"]),
-              element["ref_rel"],
-              element["libelle_art_rel"],
-              element["gencod_rel"],
-              int.parse(element["prix_ref_rel"]),
-              element["id_art_conc_rel"],
-              element["lib_art_concur_rel"],
-              element["gc_concur_rel"],
-              0,
-              int.parse(element["etat_rel"]),
-              "",
-              "",
-              int.parse(
-                element["num_rel_rel"],
-              ),
-              0);
-
-          try {
-            await db.insert("releve", top1000.toMap());
-          } catch (e) {}
-        });
-      } else {
-        //print("dat non recu");
-      }
-    } catch (e) {
-      //print('connecx timeout');
-    }
-  }
-
-  Future chargeMagasin() async {
-    Database db = await DatabaseHelper().database;
-    //await db.rawDelete("DELETE FROM releve");
-    List produitlist = [];
-
-    try {
-      var response = await http.get(Uri.parse("http://$ip/app/lib/php/selectEnseigne.php")).timeout(Duration(seconds: 4));
-
-      if (response.statusCode == 200) {
-        produitlist = json.decode(response.body);
-
-        produitlist.forEach((element) async {
-          Item top = Item.id(
-            int.parse(element["enseigne_ens"]),
-            element["libelle_ens"],
-            element["lib_plus_ens"],
-          );
-
-          try {
-            await db.insert("enseigne", top.toMap());
-          } catch (e) {}
-        });
-      } else {
-        //print("dat non recu");
-      }
-    } catch (e) {
-      //print('connecx timeout');
-    }
-  }
-
-  Future chargeZone() async {
-    Database db = await DatabaseHelper().database;
-    //await db.rawDelete("DELETE FROM releve");
-    List produitlist = [];
-
-    try {
-      var response = await http.get(Uri.parse("http://$ip/app/lib/php/selectZone.php")).timeout(Duration(seconds: 4));
-
-      if (response.statusCode == 200) {
-        produitlist = json.decode(response.body);
-
-        produitlist.forEach((element) async {
-          Zone top = Zone.id(
-            int.parse(element["zone_zn"]),
-            element["libelle_zn"],
-            element["lib_plus_zn"],
-          );
-
-          try {
-            await db.insert("zone", top.toMap());
-          } catch (e) {}
-        });
-      } else {
-        //print("dat non recu");
-      }
-    } catch (e) {
-      //print('connecx timeout');
-    }
-  }
-
-  Future Charger() async {
-    Database db = await DatabaseHelper().database;
-
-    List produitlist = [];
-
-    try {
-      var response = await http.get(Uri.parse("http://$ip/app/lib/php/select.php")).timeout(Duration(milliseconds: 2000));
-
-      if (response.statusCode == 200) {
-        chargeMagasin();
-        chargeZone();
-        produitlist = json.decode(response.body);
-        await EasyLoading.show(status: 'loading...');
-
-        chargeArticle();
-        produitlist.forEach((element) async {
-          Preparation prepa = Preparation.id(
-              int.parse(element["id_releve"]),
-              element["libelle_releve"],
-              (element["date_releve"] == null) ? "" : element["date_releve"],
-              (element["lib_plus_releve"] == null) ? "" : element["lib_plus_releve"],
-              element["dt_maj_releve"],
-              int.parse(element["enseigne_releve"]),
-              0,
-              0,
-              int.parse(element["zone_releve"]));
-
-          try {
-            await db.insert("preparation", prepa.toMap());
-            print(prepa.description);
-          } catch (e) {
-            await EasyLoading.dismiss();
-          }
-
-          await EasyLoading.dismiss();
-        });
-        recuperer();
-      } else {
-        //print("dat non recu");
-
-      }
-    } catch (e) {
-      EasyLoading.showError('Connection error', duration: Duration(seconds: 1));
-      //print('connecx timeout');
-    }
+    await DataPreparation().SelectAllOne(id_prep, ip);
   }
 
   Future recuperer() async {
@@ -282,7 +126,8 @@ class _ListesPreparationState extends State<ListesPreparation> {
         actions: [
           IconButton(
               onPressed: () async {
-                Charger();
+                await DataPreparation().Charger(ip);
+                recuperer();
               },
               icon: Icon(Icons.get_app_sharp))
         ],

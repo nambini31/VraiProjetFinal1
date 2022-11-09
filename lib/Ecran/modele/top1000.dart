@@ -5,12 +5,20 @@ class Top1000 {
   String _ref_art = "";
   String _libelle_art = "";
   String _gencode_art = "";
-  int _prix_art = 0;
+  double _prix_art = 0;
+
+  double get prix_art => this._prix_art;
+
+  set prix_art(double value) => this._prix_art = value;
 
   String _ref_art_conc = "";
   String _libelle_art_conc = "";
   String _gencode_art_conc = "";
-  int _prix_art_conc = 0;
+  double _prix_art_conc = 0;
+
+  get prix_art_conc => this._prix_art_conc;
+
+  set prix_art_conc(value) => this._prix_art_conc = value;
 
   int _etat_art = 0;
   String _date_val_releve = "";
@@ -46,10 +54,6 @@ class Top1000 {
 
   set gencode_art(value) => _gencode_art = value;
 
-  get prix_art => _prix_art;
-
-  set prix_art(value) => _prix_art = value;
-
   get ref_art_conc => _ref_art_conc;
 
   set ref_art_conc(value) => _ref_art_conc = value;
@@ -61,10 +65,6 @@ class Top1000 {
   get gencode_art_conc => _gencode_art_conc;
 
   set gencode_art_conc(value) => _gencode_art_conc = value;
-
-  get prix_art_conc => _prix_art_conc;
-
-  set prix_art_conc(value) => _prix_art_conc = value;
 
   get etat_art => _etat_art;
 
