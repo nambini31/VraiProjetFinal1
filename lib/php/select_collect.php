@@ -1,7 +1,7 @@
 <?php
 include "Connection.php";
 
-$req = $conn->query("SELECT * from rel_index_releve where etat_rel = 0 ");
+$req = $conn->query("SELECT * from rel_article ");
 
 $list = [];
 

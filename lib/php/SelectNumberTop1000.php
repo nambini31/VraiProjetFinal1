@@ -1,7 +1,7 @@
 <?php
 include "Connection.php";
 
-$id_prep = $_POST["id_prep"];
+$id_prep = (int) $_POST["id_prep"];
 
 $reqVerifierTop1000 = $conn->query("SELECT COUNT(id_rel_rel) as counter from rel_releve WHERE num_rel_rel = $id_prep  AND etat_rel = 1 ");
 

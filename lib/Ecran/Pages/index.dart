@@ -84,6 +84,7 @@ class _IndexState extends State<Index> {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Acceuil"),
           BottomNavigationBarItem(icon: Icon(Icons.compare), label: "Relever"),
           BottomNavigationBarItem(icon: Icon(Icons.article), label: "Article"),
+          BottomNavigationBarItem(icon: Icon(Icons.list_alt_outlined), label: "Collect"),
         ],
         currentIndex: i,
         onTap: onItemTap,

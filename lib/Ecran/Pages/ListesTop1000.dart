@@ -198,7 +198,7 @@ class _ListesTop1000State extends State<ListesTop1000> {
                           text: "Tous",
                         ),
                         Tab(
-                          text: "En attente",
+                          text: "Attente",
                         ),
                         Tab(
                           text: "Valider",
@@ -261,15 +261,15 @@ class _ListesTop1000State extends State<ListesTop1000> {
 
   Icon icone(int etat, double prix) {
     var iconValide = Icon(
-      Icons.check_circle,
+      Icons.radio_button_checked_rounded,
       color: Colors.green,
     );
     var iconAttente = Icon(
-      Icons.check_circle,
+      Icons.radio_button_checked_rounded,
       color: Colors.orange,
     );
     var iconNon = Icon(
-      Icons.check_circle,
+      Icons.radio_button_checked_rounded,
       color: Colors.grey,
     );
 

@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:app/Ecran/Nouvelle%20Article/AjoutArticle.dart';
+import 'package:app/Ecran/modele/dataTop1000.dart';
 import 'package:app/Ecran/modele/database_Helper.dart';
 import 'package:app/Ecran/modele/article.dart';
 import 'package:app/Ecran/modele/magasin.dart';
@@ -10,6 +11,7 @@ import 'package:app/Ecran/modele/preparation.dart';
 import 'package:app/Ecran/modele/top1000.dart';
 import 'package:app/Ecran/modele/zone.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -37,13 +39,118 @@ class DataPreparation {
     return listes;
   }
 
+  Future<List<Preparation>> SelectAttente() async {
+    List<Preparation> listes = [];
+    Database db = await DatabaseHelper().database;
+    List<Map<String, dynamic>> result = await db.rawQuery(
+        "SELECT preparation.*,enseigne.design_enseigne,zone.libelle_zone FROM enseigne INNER JOIN preparation  ON preparation.id_enseigne = enseigne.id_enseigne INNER JOIN zone ON preparation.id_zone = zone.id_zone WHERE etat_attente = 1 AND etat = 0");
+    //List<Map<String, dynamic>> resulti = await db.query("Article", where: "", orderBy: "is ASC");
+    result.forEach((MapElement) {
+      Preparation article = Preparation();
+      article.fromMap(MapElement);
+      listes.add(article);
+    });
+
+    return listes;
+  }
+
+  Future<List<Preparation>> SelectValider() async {
+    List<Preparation> listes = [];
+    Database db = await DatabaseHelper().database;
+    List<Map<String, dynamic>> result = await db.rawQuery(
+        "SELECT preparation.*,enseigne.design_enseigne,zone.libelle_zone FROM enseigne INNER JOIN preparation  ON preparation.id_enseigne = enseigne.id_enseigne INNER JOIN zone ON preparation.id_zone = zone.id_zone WHERE etat = 1");
+    //List<Map<String, dynamic>> resulti = await db.query("Article", where: "", orderBy: "is ASC");
+    result.forEach((MapElement) {
+      Preparation article = Preparation();
+      article.fromMap(MapElement);
+      listes.add(article);
+    });
+
+    return listes;
+  }
+
+  Future<List<Preparation>> SelectTransferer() async {
+    List<Preparation> listes = [];
+    Database db = await DatabaseHelper().database;
+    List<Map<String, dynamic>> result = await db.rawQuery(
+        "SELECT preparation.*,enseigne.design_enseigne,zone.libelle_zone FROM enseigne INNER JOIN preparation  ON preparation.id_enseigne = enseigne.id_enseigne INNER JOIN zone ON preparation.id_zone = zone.id_zone WHERE etat = 2   ");
+    //List<Map<String, dynamic>> resulti = await db.query("Article", where: "", orderBy: "is ASC");
+    result.forEach((MapElement) {
+      Preparation article = Preparation();
+      article.fromMap(MapElement);
+      listes.add(article);
+    });
+
+    return listes;
+  }
+
+  Future<List<Preparation>> SearchAll(String txt) async {
+    List<Preparation> listes = [];
+    Database db = await DatabaseHelper().database;
+    List<Map<String, dynamic>> result = await db.rawQuery(
+        "SELECT preparation.*,enseigne.design_enseigne,zone.libelle_zone FROM enseigne INNER JOIN preparation  ON preparation.id_enseigne = enseigne.id_enseigne INNER JOIN zone ON preparation.id_zone = zone.id_zone   AND (preparation.libelle_prep LIKE '%$txt%' OR preparation.description LIKE '%$txt%' OR preparation.date_prep LIKE '%$txt%' OR preparation.date_maj_prep LIKE '%$txt%' OR enseigne.design_enseigne LIKE '%$txt%' OR zone.libelle_zone LIKE '%$txt%')  ");
+    //List<Map<String, dynamic>> resulti = await db.query("Article", where: "", orderBy: "is ASC");
+    result.forEach((MapElement) {
+      Preparation article = Preparation();
+      article.fromMap(MapElement);
+      listes.add(article);
+    });
+
+    return listes;
+  }
+
+  Future<List<Preparation>> SearchAttente(String txt) async {
+    List<Preparation> listes = [];
+    Database db = await DatabaseHelper().database;
+    List<Map<String, dynamic>> result = await db.rawQuery(
+        "SELECT preparation.*,enseigne.design_enseigne,zone.libelle_zone FROM enseigne INNER JOIN preparation  ON preparation.id_enseigne = enseigne.id_enseigne INNER JOIN zone ON preparation.id_zone = zone.id_zone WHERE etat_attente = 1 AND etat = 0   AND (preparation.libelle_prep LIKE '%$txt%' OR preparation.description LIKE '%$txt%' OR preparation.date_prep LIKE '%$txt%' OR preparation.date_maj_prep LIKE '%$txt%' OR enseigne.design_enseigne LIKE '%$txt%' OR zone.libelle_zone LIKE '%$txt%') ");
+    //List<Map<String, dynamic>> resulti = await db.query("Article", where: "", orderBy: "is ASC");
+    result.forEach((MapElement) {
+      Preparation article = Preparation();
+      article.fromMap(MapElement);
+      listes.add(article);
+    });
+
+    return listes;
+  }
+
+  Future<List<Preparation>> SearchValider(String txt) async {
+    List<Preparation> listes = [];
+    Database db = await DatabaseHelper().database;
+    List<Map<String, dynamic>> result = await db.rawQuery(
+        "SELECT preparation.*,enseigne.design_enseigne,zone.libelle_zone FROM enseigne INNER JOIN preparation  ON preparation.id_enseigne = enseigne.id_enseigne INNER JOIN zone ON preparation.id_zone = zone.id_zone WHERE etat = 1   AND (preparation.libelle_prep LIKE '%$txt%' OR preparation.description LIKE '%$txt%' OR preparation.date_prep LIKE '%$txt%' OR preparation.date_maj_prep LIKE '%$txt%' OR enseigne.design_enseigne LIKE '%$txt%' OR zone.libelle_zone LIKE '%$txt%') ");
+    //List<Map<String, dynamic>> resulti = await db.query("Article", where: "", orderBy: "is ASC");
+    result.forEach((MapElement) {
+      Preparation article = Preparation();
+      article.fromMap(MapElement);
+      listes.add(article);
+    });
+
+    return listes;
+  }
+
+  Future<List<Preparation>> SearchTransferer(String txt) async {
+    List<Preparation> listes = [];
+    Database db = await DatabaseHelper().database;
+    List<Map<String, dynamic>> result = await db.rawQuery(
+        "SELECT preparation.*,enseigne.design_enseigne,zone.libelle_zone FROM enseigne INNER JOIN preparation  ON preparation.id_enseigne = enseigne.id_enseigne INNER JOIN zone ON preparation.id_zone = zone.id_zone WHERE etat = 2 AND (preparation.libelle_prep LIKE '%$txt%' OR preparation.description LIKE '%$txt%' OR preparation.date_prep LIKE '%$txt%' OR preparation.date_maj_prep LIKE '%$txt%' OR enseigne.design_enseigne LIKE '%$txt%' OR zone.libelle_zone LIKE '%$txt%') ");
+    //List<Map<String, dynamic>> resulti = await db.query("Article", where: "", orderBy: "is ASC");
+    result.forEach((MapElement) {
+      Preparation article = Preparation();
+      article.fromMap(MapElement);
+      listes.add(article);
+    });
+
+    return listes;
+  }
+
   Future chargeArticle(String ip) async {
     Database db = await DatabaseHelper().database;
     //await db.rawDelete("DELETE FROM releve");
     List produitlist = [];
 
     try {
-      var response = await http.get(Uri.parse("http://$ip/app/lib/php/selectArticle.php")).timeout(Duration(seconds: 4));
+      var response = await http.get(Uri.parse("http://$ip/app/lib/php/selectArticle.php")).timeout(Duration(seconds: 5));
 
       if (response.statusCode == 200) {
         produitlist = json.decode(response.body);
@@ -52,12 +159,12 @@ class DataPreparation {
           Top1000 top1000 = Top1000.id(
               int.parse(element["id_rel_rel"]),
               element["ref_rel"],
-              element["libelle_art_rel"],
-              element["gencod_rel"],
-              double.parse(element["prix_ref_rel"]),
+              (element["libelle_art_rel"] == null) ? "" : element["libelle_art_rel"],
+              (element["gencod_rel"] == null) ? "" : element["gencod_rel"],
+              (element["prix_ref_rel"] == null) ? 0 : double.parse(element["prix_ref_rel"]),
               element["id_art_conc_rel"],
-              element["lib_art_concur_rel"],
-              element["gc_concur_rel"],
+              (element["lib_art_concur_rel"] == null) ? "" : element["lib_art_concur_rel"],
+              (element["gc_concur_rel"] == null) ? "" : element["gc_concur_rel"],
               0,
               (element["etat_rel"] == null) ? 0 : int.parse(element["etat_rel"]),
               "",
@@ -85,16 +192,16 @@ class DataPreparation {
     List produitlist = [];
 
     try {
-      var response = await http.get(Uri.parse("http://$ip/app/lib/php/selectEnseigne.php")).timeout(Duration(seconds: 4));
+      var response1 = await http.get(Uri.parse("http://$ip/app/lib/php/selectEnseigne.php")).timeout(Duration(seconds: 5));
 
-      if (response.statusCode == 200) {
-        produitlist = json.decode(response.body);
+      if (response1.statusCode == 200) {
+        produitlist = json.decode(response1.body);
 
         produitlist.forEach((element) async {
           Item top = Item.id(
             int.parse(element["enseigne_ens"]),
-            element["libelle_ens"],
-            element["lib_plus_ens"],
+            (element["libelle_ens"] == null) ? "" : element["libelle_ens"],
+            (element["lib_plus_ens"] == null) ? "" : element["lib_plus_ens"],
           );
 
           try {
@@ -115,16 +222,16 @@ class DataPreparation {
     List produitlist = [];
 
     try {
-      var response = await http.get(Uri.parse("http://$ip/app/lib/php/selectZone.php")).timeout(Duration(seconds: 4));
+      var response2 = await http.get(Uri.parse("http://$ip/app/lib/php/selectZone.php")).timeout(Duration(seconds: 4));
 
-      if (response.statusCode == 200) {
-        produitlist = json.decode(response.body);
+      if (response2.statusCode == 200) {
+        produitlist = json.decode(response2.body);
 
         produitlist.forEach((element) async {
           Zone top = Zone.id(
             int.parse(element["zone_zn"]),
-            element["libelle_zn"],
-            element["lib_plus_zn"],
+            (element["libelle_zn"] == null) ? "" : element["libelle_zn"],
+            (element["lib_plus_zn"] == null) ? "" : element["lib_plus_zn"],
           );
 
           try {
@@ -143,7 +250,6 @@ class DataPreparation {
     Database db = await DatabaseHelper().database;
     EasyLoading.instance
       ..maskType = EasyLoadingMaskType.custom
-      ..displayDuration = const Duration(milliseconds: 2000)
       ..indicatorType = EasyLoadingIndicatorType.circle
       ..loadingStyle = EasyLoadingStyle.dark
       ..indicatorSize = 45.0
@@ -153,45 +259,55 @@ class DataPreparation {
       ..indicatorColor = Colors.yellow
       ..textColor = Colors.yellow
       ..maskColor = Colors.black.withOpacity(0.5)
-      ..userInteractions = true
+      ..userInteractions = false
       ..dismissOnTap = false;
+
     await EasyLoading.show(status: 'loading...');
     List produitlist = [];
 
     try {
-      var response = await http.get(Uri.parse("http://$ip/app/lib/php/select.php")).timeout(Duration(milliseconds: 2000));
+      var response4 = await http.get(Uri.parse("http://$ip/app/lib/php/select.php")).timeout(Duration(seconds: 5));
 
-      if (response.statusCode == 200) {
+      if (response4.statusCode == 200) {
         chargeMagasin(ip);
         chargeZone(ip);
-        produitlist = json.decode(response.body);
-
         chargeArticle(ip);
+        produitlist = json.decode(response4.body);
+
         produitlist.forEach((element) async {
           Preparation prepa = Preparation.id(
               int.parse(element["id_releve"]),
-              element["libelle_releve"],
+              (element["libelle_releve"] == null) ? "" : element["libelle_releve"],
               (element["date_releve"] == null) ? "" : element["date_releve"],
               (element["lib_plus_releve"] == null) ? "" : element["lib_plus_releve"],
-              element["dt_maj_releve"],
+              (element["dt_maj_releve"] == null) ? "" : element["dt_maj_releve"],
               int.parse(element["enseigne_releve"]),
-              0,
+              (element["etat_rel"] == null) ? 0 : int.parse(element["etat_rel"]),
               0,
               int.parse(element["zone_releve"]));
-
+//tomysql
           try {
             await db.insert("preparation", prepa.toMap());
             print(prepa.description);
-          } catch (e) {}
+          } catch (e) {
+            await db.rawUpdate(
+                "UPDATE preparation SET etat = ${int.parse(element["etat_rel"])} , date_maj_prep = '${element["dt_maj_releve"]}' WHERE id_prep = ${int.parse(element["id_releve"])} ");
+          }
+
+          DataTop1000().etatPreparationCharger(int.parse(element["id_releve"]));
+          // if (nbrTopfini! > 0 && nbrTopNon! > 0) {
+          //   await db.rawUpdate(
+          //       "UPDATE preparation SET etat = 0 , etat_Attente = 1 , date_maj_prep = '${DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now())}' WHERE id_prep = ${int.parse(element["id_releve"])} ");
+          // } else {}
           EasyLoading.showSuccess('Success!', dismissOnTap: true);
-          await EasyLoading.dismiss();
         });
       } else {
         //print("dat non recu");
 
       }
     } catch (e) {
-      EasyLoading.showError('Connection error', duration: Duration(seconds: 2));
+      print(e);
+      EasyLoading.showError('Connection error12', duration: Duration(seconds: 2));
       //print('connecx timeout');
     }
   }
@@ -215,7 +331,7 @@ class DataPreparation {
           ..indicatorColor = Colors.yellow
           ..textColor = Colors.yellow
           ..maskColor = Colors.black.withOpacity(0.5)
-          ..userInteractions = true
+          ..userInteractions = false
           ..dismissOnTap = false;
         await EasyLoading.show(status: 'En cours de Transfer...');
         final response = await http.post(Uri.parse('http://$ip/app/lib/php/TransfererPreparation.php'), headers: {
@@ -244,8 +360,10 @@ class DataPreparation {
         });
 
         EasyLoading.showSuccess('Success!');
+        await db.rawUpdate("UPDATE preparation SET etat = 2  WHERE id_prep = $id_prep ");
         await EasyLoading.dismiss();
       } catch (e) {
+        print("roa" + e.toString());
         EasyLoading.showError('Connection error',
             duration: Duration(
               seconds: 2,

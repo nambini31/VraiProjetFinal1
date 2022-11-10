@@ -36,58 +36,174 @@ class DataTop1000 {
     return listes;
   }
 
-  Future SelectNombreAttente(int id) async {
-    Database db = await DatabaseHelper().database;
+  // Future SelectNombreAttente(int id) async {
+  //   Database db = await DatabaseHelper().database;
 
-    await db.rawUpdate(
-        "UPDATE preparation SET etat_Attente = 1 , date_maj_prep = '${DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now())}' WHERE id_prep = $id ");
-  }
+  //   await db.rawUpdate(
+  //       "UPDATE preparation SET etat_Attente = 1 , date_maj_prep = '${DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now())}' WHERE id_prep = $id ");
+  // }
 
-  Future SelectNombreValider(int id) async {
+  Future etatPreparation(int id) async {
     Database db = await DatabaseHelper().database;
+    int? countattente;
+    int? countetat;
     int? count;
+
     try {
-      count = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT(id_releve) FROM releve WHERE id_prep = $id AND etat_art = 0 "));
+      countattente =
+          Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT(id_releve) FROM releve WHERE id_prep = $id AND etat_art = 0 AND prix_art_conc != 0"));
     } catch (e) {
-      count = 0;
+      countattente = 0;
     }
 
-    if (count == 0) {
-      await db.rawUpdate(
-          "UPDATE preparation SET etat = 1 , date_maj_prep = '${DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now())}' WHERE id_prep = $id ");
-    } else {
-      await db.rawUpdate(
-          "UPDATE preparation SET etat_Attente = 1 , date_maj_prep = '${DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now())}' WHERE id_prep = $id ");
-    }
-  }
-
-  Future SelectNombreAnnuler(int id) async {
-    Database db = await DatabaseHelper().database;
-    int? count;
-    int? count2;
     try {
-      count = Sqflite.firstIntValue(
-          await db.rawQuery("SELECT COUNT(id_releve) FROM releve WHERE id_prep = $id AND prix_art_conc != 0 AND etat_art = 0 "));
+      count = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT(id_releve) FROM releve WHERE id_prep = $id "));
     } catch (e) {
       count = 0;
     }
 
     try {
-      count2 = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT(id_releve) FROM releve WHERE id_prep = $id  AND etat_art = 1 "));
+      countetat = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT(id_releve) FROM releve WHERE id_prep = $id AND etat_art = 1 "));
     } catch (e) {
-      count2 = 0;
+      countetat = 0;
     }
 
-    if (count == 0 && count2 == 0) {
+    print("countAttente = $countattente et countEtat = $countetat");
+
+    if (countetat == 0 && countattente == 0) {
+      await db.rawUpdate("UPDATE preparation SET etat = 0 , etat_Attente = 0   WHERE id_prep = $id ");
+    } else if (countetat! == 0 && countattente! <= count!) {
       await db.rawUpdate(
-          "UPDATE preparation SET etat_attente = 0 , date_maj_prep = '${DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now())}' WHERE id_prep = $id ");
+          "UPDATE preparation SET etat_Attente = 1  , etat = 0 ,  date_maj_prep = '${DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now())}' WHERE id_prep = $id ");
+    } else if (countetat > 0 && countattente! > 0) {
+    } else if (countetat < count! && countattente! == 0) {
+      await db.rawUpdate(
+          "UPDATE preparation SET etat_Attente = 1 , etat = 0 , date_maj_prep = '${DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now())}' WHERE id_prep = $id ");
+    } else if (countetat > 0 && countattente! > 0) {
+      await db.rawUpdate(
+          "UPDATE preparation SET etat_Attente = 1 , etat = 0 , date_maj_prep = '${DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now())}' WHERE id_prep = $id ");
     } else {
       await db.rawUpdate(
-          "UPDATE preparation SET etat_Attente = 1  , date_maj_prep = '${DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now())}' WHERE id_prep = $id ");
+          "UPDATE preparation SET etat = 1 , etat_attente = 0, date_maj_prep = '${DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now())}' WHERE id_prep = $id ");
     }
   }
 
-  Future<int?> SelectNombreTop1000(int id) async {
+  Future etatPreparationCharger(int id) async {
+    Database db = await DatabaseHelper().database;
+    int? countattente;
+    int? countetat;
+    int? count;
+
+    try {
+      countattente =
+          Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT(id_releve) FROM releve WHERE id_prep = $id AND etat_art = 0 AND prix_art_conc != 0"));
+    } catch (e) {
+      countattente = 0;
+    }
+
+    try {
+      count = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT(id_releve) FROM releve WHERE id_prep = $id "));
+    } catch (e) {
+      count = 0;
+    }
+
+    try {
+      countetat = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT(id_releve) FROM releve WHERE id_prep = $id AND etat_art = 1 "));
+    } catch (e) {
+      countetat = 0;
+    }
+
+    print("countAttente = $countattente et countEtat = $countetat");
+
+    if (countetat == 0 && countattente == 0) {
+      await db.rawUpdate("UPDATE preparation SET etat = 0 , etat_Attente = 0   WHERE id_prep = $id ");
+    } else if (countetat! == 0 && countattente! <= count!) {
+      await db.rawUpdate("UPDATE preparation SET etat_Attente = 1 , etat = 0  WHERE id_prep = $id ");
+    } else if (countetat < count! && countattente! == 0) {
+      await db.rawUpdate("UPDATE preparation SET etat_Attente = 1 , etat = 0  WHERE id_prep = $id ");
+    } else if (countetat > 0 && countattente! > 0) {
+      await db.rawUpdate("UPDATE preparation SET etat_Attente = 1 , etat = 0  WHERE id_prep = $id ");
+    } else {
+      await db.rawUpdate("UPDATE preparation SET etat = 1 , etat_attente = 0  WHERE id_prep = $id ");
+    }
+  }
+
+  // Future SelectNombreValider(int id) async {
+  // Future etatPreparationCharger(int id) async {
+  //   Database db = await DatabaseHelper().database;
+  //   int? countattente;
+  //   int? countetat;
+  //   try {
+  //     countattente =
+  //         Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT(id_releve) FROM releve WHERE id_prep = $id AND etat_art = 0 AND prix_art_conc != 0"));
+  //   } catch (e) {
+  //     countattente = 0;
+  //   }
+
+  //   try {
+  //     countetat = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT(id_releve) FROM releve WHERE id_prep = $id AND etat_art = 1 "));
+  //   } catch (e) {
+  //     countetat = 0;
+  //   }
+
+  //   print("countAttente = $countattente et countEtat = $countetat");
+
+  //   if (countetat == 0 && countattente == 0) {
+  //     await db.rawUpdate("UPDATE preparation SET etat = 0 , etat_Attente = 0   WHERE id_prep = $id ");
+  //   } else if (countetat! == 0 && countattente! > 0) {
+  //     await db.rawUpdate(
+  //         "UPDATE preparation SET etat_Attente = 1 , date_maj_prep = '${DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now())}' WHERE id_prep = $id ");
+  //   } else {
+  //     await db.rawUpdate(
+  //         "UPDATE preparation SET etat = 1 , date_maj_prep = '${DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now())}' WHERE id_prep = $id ");
+  //   }
+  // }
+  // Future SelectNombreValider(int id) async {
+  //   Database db = await DatabaseHelper().database;
+
+  //   int? count;
+  //   try {
+  //     count = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT(id_releve) FROM releve WHERE id_prep = $id AND etat_art = 0 "));
+  //   } catch (e) {
+  //     count = 0;
+  //   }
+
+  //   if (count == 0) {
+  //     await db.rawUpdate(
+  //         "UPDATE preparation SET etat = 1 , date_maj_prep = '${DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now())}' WHERE id_prep = $id ");
+  //   } else {
+  //     await db.rawUpdate(
+  //         "UPDATE preparation SET etat_Attente = 1 , date_maj_prep = '${DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now())}' WHERE id_prep = $id ");
+  //   }
+  // }
+
+  // Future SelectNombreAnnuler(int id) async {
+  //   Database db = await DatabaseHelper().database;
+  //   int? count;
+  //   int? count2;
+  //   try {
+  //     count = Sqflite.firstIntValue(
+  //         await db.rawQuery("SELECT COUNT(id_releve) FROM releve WHERE id_prep = $id AND prix_art_conc != 0 AND etat_art = 0 "));
+  //   } catch (e) {
+  //     count = 0;
+  //   }
+
+  //   try {
+  //     count2 = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT(id_releve) FROM releve WHERE id_prep = $id  AND etat_art = 1 "));
+  //   } catch (e) {
+  //     count2 = 0;
+  //   }
+
+  //   if (count == 0 && count2 == 0) {
+  //     await db.rawUpdate(
+  //         "UPDATE preparation SET etat_attente = 0 , date_maj_prep = '${DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now())}' WHERE id_prep = $id ");
+  //   } else {
+  //     await db.rawUpdate(
+  //         "UPDATE preparation SET etat_Attente = 1  , date_maj_prep = '${DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now())}' WHERE id_prep = $id ");
+  //   }
+  // } tomysql
+
+  Future<int?> SelectNombreTop1000Fini(int id) async {
     Database db = await DatabaseHelper().database;
     int? count;
     try {
@@ -98,12 +214,24 @@ class DataTop1000 {
     return count;
   }
 
+  // Future<int?> SelectNombreTopNonfini(int id) async {
+  //   Database db = await DatabaseHelper().database;
+  //   int? count;
+  //   try {
+  //     count = Sqflite.firstIntValue(await db.rawQuery("SELECT COUNT(id_releve) FROM releve WHERE id_prep = $id AND etat_art = 0 "));
+  //   } catch (e) {
+  //     count = 0;
+  //   }
+  //   return count;
+  // }
+
+//SelectNumberPreparation.php
   Future<int?> SelectNombreTop1000Mysql(int id_prep, String ip) async {
     Database db = await DatabaseHelper().database;
     int? count;
     try {
       var response = await http
-          .post(Uri.parse("http://$ip/app/lib/php/selectNumberTop1000.php"), body: {"id_prep": id_prep.toString()}).timeout(Duration(seconds: 4));
+          .post(Uri.parse("http://$ip/app/lib/php/selectNumberTop1000.php"), body: {"id_prep": id_prep.toString()}).timeout(Duration(seconds: 5));
 
       if (response.statusCode == 200) {
         var rep = json.decode(response.body);
@@ -122,7 +250,67 @@ class DataTop1000 {
         ..indicatorColor = Colors.yellow
         ..textColor = Colors.yellow
         ..maskColor = Colors.black.withOpacity(0.5)
-        ..userInteractions = true;
+        ..userInteractions = false;
+      EasyLoading.showError('Connection error', duration: Duration(seconds: 2), dismissOnTap: true);
+    }
+    return count;
+  }
+
+  // Future<int?> SelectNombreTop1000mysql(int id_prep, String ip) async {
+  //   Database db = await DatabaseHelper().database;
+  //   int? count;
+  //   try {
+  //     var response = await http
+  //         .post(Uri.parse("http://$ip/app/lib/php/SelectNumbertoponmysql.php"), body: {"id_prep": id_prep.toString()}).timeout(Duration(seconds: 5));
+
+  //     if (response.statusCode == 200) {
+  //       var rep = json.decode(response.body);
+  //       count = int.parse(rep[0]);
+  //     } else {}
+  //   } catch (e) {
+  //     EasyLoading.instance
+  //       ..maskType = EasyLoadingMaskType.custom
+  //       ..displayDuration = const Duration(milliseconds: 2000)
+  //       ..indicatorType = EasyLoadingIndicatorType.circle
+  //       ..loadingStyle = EasyLoadingStyle.dark
+  //       ..indicatorSize = 45.0
+  //       ..radius = 10.0
+  //       ..progressColor = Colors.yellow
+  //       ..backgroundColor = Colors.green
+  //       ..indicatorColor = Colors.yellow
+  //       ..textColor = Colors.yellow
+  //       ..maskColor = Colors.black.withOpacity(0.5)
+  //       ..userInteractions = false;
+  //     EasyLoading.showError('Connection error', duration: Duration(seconds: 2), dismissOnTap: true);
+  //   }
+  //   return count;
+  // }
+
+  Future<int?> SelectNombrePreparation(int id_prep, String ip) async {
+    Database db = await DatabaseHelper().database;
+    int? count;
+    try {
+      var response = await http
+          .post(Uri.parse("http://$ip/app/lib/php/selectNumberPreparation.php"), body: {"id_prep": id_prep.toString()}).timeout(Duration(seconds: 5));
+
+      if (response.statusCode == 200) {
+        var rep = json.decode(response.body);
+        count = rep[0];
+      } else {}
+    } catch (e) {
+      EasyLoading.instance
+        ..maskType = EasyLoadingMaskType.custom
+        ..displayDuration = const Duration(milliseconds: 2000)
+        ..indicatorType = EasyLoadingIndicatorType.circle
+        ..loadingStyle = EasyLoadingStyle.dark
+        ..indicatorSize = 45.0
+        ..radius = 10.0
+        ..progressColor = Colors.yellow
+        ..backgroundColor = Colors.green
+        ..indicatorColor = Colors.yellow
+        ..textColor = Colors.yellow
+        ..maskColor = Colors.black.withOpacity(0.5)
+        ..userInteractions = false;
       EasyLoading.showError('Connection error', duration: Duration(seconds: 2), dismissOnTap: true);
     }
     return count;
@@ -203,21 +391,21 @@ class DataTop1000 {
 
     await db.update("releve", releve.toMap(), where: " id_releve = ? AND id_prep = ?", whereArgs: [releve.id_releve, id_prep]);
 
-    SelectNombreAttente(id_prep);
+    etatPreparation(id_prep);
   }
 
   Future UpdateEtatReleve(int id_releve, int id_prep, String datetime) async {
     Database db = await DatabaseHelper().database;
 
     await db.rawUpdate("UPDATE releve SET etat_art = 1 , date_val_releve = '$datetime' WHERE id_releve = $id_releve AND id_prep = $id_prep ");
-    SelectNombreValider(id_prep);
+    etatPreparation(id_prep);
   }
 
 // prix
   Future AnnulerReleve(int id_releve, int id_prep) async {
     Database db = await DatabaseHelper().database;
     await db.rawUpdate("UPDATE releve SET prix_art_conc= 0  , date_maj_releve = '' WHERE id_releve = $id_releve AND id_prep = $id_prep ");
-    SelectNombreAnnuler(id_prep);
+    etatPreparation(id_prep);
   }
 
   Future<List<Top1000>> SearchAll(int id, String txt) async {
