@@ -14,6 +14,6 @@ class HomeApplication extends StatefulWidget {
 class _HomeApplicationState extends State<HomeApplication> {
   @override
   Widget build(BuildContext context) {
-    return Index(0);
+    return Index();
   }
 }

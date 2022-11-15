@@ -32,7 +32,8 @@ class DataArticle {
     List<Article> listes = [];
     Database db = await DatabaseHelper().database;
 
-    List<Map<String, dynamic>> result = await db.rawQuery("SELECT * FROM art_nouv");
+    List<Map<String, dynamic>> result =
+        await db.rawQuery("SELECT art_nouv.* , enseigne.design_enseigne FROM art_nouv , enseigne WHERE art_nouv.id_enseigne = enseigne.id_enseigne");
     //List<Map<String, dynamic>> resulti = await db.query("Article", where: "", orderBy: "is ASC");
     result.forEach((MapElement) {
       Article article = Article();

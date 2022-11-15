@@ -77,11 +77,11 @@ class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
       } else {
         Article article = Article.modif(this.id, this.libele, this.prix, this.gencode, this.description, this.imageString, this.id_enseigne);
         DataArticle().UpdateArticle(article);
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Index(2),
-            ));
+        // Navigator.push(
+        //     context,
+        //     MaterialPageRoute(
+        //       builder: (context) => Index(2),
+        //     ));
       }
     } else {}
   }
@@ -525,11 +525,11 @@ class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
                         height: 40,
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Index(2),
-                                ));
+                            // Navigator.push(
+                            //     context,
+                            //     MaterialPageRoute(
+                            //       builder: (context) => Index(2),
+                            //     ));
                           },
                           // ignore: sort_child_properties_last
                           child: Text(
@@ -616,13 +616,13 @@ class _PagesNouveauArticleState extends State<ModifNouveauArticle> {
                           style: ButtonStyle(
                               foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.blue)),
                           onPressed: () {
-                            return (i == 1)
-                                ? Modifier()
-                                : Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => Index(2),
-                                    ));
+                            // return (i == 1)
+                            //     ? Modifier()
+                            //     : Navigator.push(
+                            //         context,
+                            //         MaterialPageRoute(
+                            //           builder: (context) => Index(2),
+                            //         ));
                           },
                           child: Text("Oui")),
                     ),

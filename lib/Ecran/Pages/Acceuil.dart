@@ -22,105 +22,20 @@ class Acceuil extends StatefulWidget {
 class _AcceuilState extends State<Acceuil> {
   List produitlist = [];
   late Socket socket;
+  @override
+  void initState() {
+    super.initState();
+  }
 
   String dateTime() {
     var date = DateTime.now();
     return DateFormat("yyyy-MM-dd HH:mm:ss").format(date);
   }
 
-  // int start = 0;
-  //
-  // late Timer time;
-  // void startTime() {
-  //   time = Timer.periodic(
-  //     Duration(seconds: 1),
-  //     (timer) {
-  //       if (start == 1) {
-  //         setState(() {
-  //           end = false;
-  //           start = 0;
-  //         });
-  //         time.cancel();
-  //       } else {
-  //         start++;
-  //         setState(() {
-  //           end = true;
-  //         });
-  //       }
-  //     },
-  //   );
-  // }
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () => exitApp(),
-      child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: Text("ghghh"),
-          automaticallyImplyLeading: false,
-        ),
-        body: Center(
-          child: Column(
-            children: [Text("ate ${dateTime()}"), ElevatedButton(onPressed: () {}, child: Text("Charger"))],
-          ),
-        ),
-      ),
+    return Center(
+      child: Text("ate ${dateTime()}"),
     );
-  }
-
-  Future<bool> exitApp() async {
-    bool appExit = await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: ((BuildContext context) {
-          return AlertDialog(
-            title: Text("Voulez vous vraiment quitter ?"),
-            actionsAlignment: MainAxisAlignment.end,
-            actions: [
-              Container(
-                width: MediaQuery.of(context).size.width,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 100,
-                      child: TextButton(
-                          style: ButtonStyle(
-                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.red)),
-                          onPressed: () {
-                            Navigator.pop(context, false);
-                          },
-                          child: Text("Annuler")),
-                    ),
-                    SizedBox(
-                      width: 30,
-                    ),
-                    Container(
-                      width: 100,
-                      child: TextButton(
-                          style: ButtonStyle(
-                              foregroundColor: MaterialStatePropertyAll(Colors.white), backgroundColor: MaterialStatePropertyAll(Colors.blue)),
-                          onPressed: () {
-                            Navigator.pop(context);
-                            // DataPreparation().DeletePreparation(prep.id_prep);
-                            // recuperer();
-                            Navigator.of(context).pop(true);
-                          },
-                          child: Text("Oui")),
-                    ),
-                  ],
-                ),
-              )
-            ],
-          );
-        }));
-    return appExit;
   }
 }

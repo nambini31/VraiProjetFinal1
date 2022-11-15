@@ -24,15 +24,29 @@ class Top1000 {
   String _date_val_releve = "";
   String _date_maj_releve = "";
   int _id_prep = 0;
-  int _id_choix = 0;
 
-  int get id_choix => this._id_choix;
+  int id_changer_nouveau = 0;
 
-  set id_choix(int value) => this._id_choix = value;
+  get idchanger_nouveau => this.id_changer_nouveau;
+
+  set idchanger_nouveau(value) => this.id_changer_nouveau = value;
 
   Top1000();
-  Top1000.id(this._id_releve, this._ref_art, this._libelle_art, this._gencode_art, this._prix_art, this._ref_art_conc, this._libelle_art_conc,
-      this._gencode_art_conc, this._prix_art_conc, this._etat_art, this._date_maj_releve, this._date_val_releve, this._id_prep, this._id_choix);
+  Top1000.id(
+      this._id_releve,
+      this._ref_art,
+      this._libelle_art,
+      this._gencode_art,
+      this._prix_art,
+      this._ref_art_conc,
+      this._libelle_art_conc,
+      this._gencode_art_conc,
+      this._prix_art_conc,
+      this._date_maj_releve,
+      this._date_val_releve,
+      this._id_prep,
+      this._etat_art,
+      this.id_changer_nouveau);
 
   get date_maj_releve => this._date_maj_releve;
 
@@ -89,23 +103,22 @@ class Top1000 {
     libelle_art_conc = map["libelle_art_conc"];
     gencode_art_conc = map["gencode_art_conc"];
     prix_art_conc = map["prix_art_conc"];
-
-    etat_art = map["etat_art"];
-    date_val_releve = map["date_val_releve"];
-    date_maj_releve = map["date_maj_releve"];
-    id_prep = map["id_prep"];
-    id_choix = map["id_choix"];
-  }
-
-  void fromMapWithoutJoin(Map<String, dynamic> map) {
-    id_releve = map["id_releve"];
-    ref_art_conc = map["ref_art_conc"];
-    prix_art_conc = map["prix_art_conc"];
+    id_changer_nouveau = map["id_changer_nouveau"];
     etat_art = map["etat_art"];
     date_val_releve = map["date_val_releve"];
     date_maj_releve = map["date_maj_releve"];
     id_prep = map["id_prep"];
   }
+
+  // void fromMapWithoutJoin(Map<String, dynamic> map) {
+  //   id_releve = map["id_releve"];
+  //   ref_art_conc = map["ref_art_conc"];
+  //   prix_art_conc = map["prix_art_conc"];
+  //   etat_art = map["etat_art"];
+  //   date_val_releve = map["date_val_releve"];
+  //   date_maj_releve = map["date_maj_releve"];
+  //   id_prep = map["id_prep"];
+  // }
 
   Map<String, dynamic> toMap() {
     Map<String, dynamic> map = {};
@@ -124,8 +137,28 @@ class Top1000 {
     map["date_val_releve"] = date_val_releve;
     map["date_maj_releve"] = date_maj_releve;
     map["id_prep"] = id_prep;
-    map["id_choix"] = id_choix;
+    map["id_changer_nouveau"] = id_changer_nouveau;
 
+    return map;
+  }
+
+  Map<String, dynamic> toMapNouveauSiExiste() {
+    Map<String, dynamic> map = {};
+    map["ref_art"] = ref_art;
+    map["libelle_art"] = libelle_art;
+    map["gencode_art"] = gencode_art;
+    map["prix_art"] = prix_art;
+
+    map["ref_art_conc"] = ref_art_conc;
+    map["libelle_art_conc"] = libelle_art_conc;
+    map["gencode_art_conc"] = gencode_art_conc;
+    map["prix_art_conc"] = prix_art_conc;
+
+    map["etat_art"] = etat_art;
+    map["date_val_releve"] = date_val_releve;
+    map["date_maj_releve"] = date_maj_releve;
+    map["id_prep"] = id_prep;
+    map["id_changer_nouveau"] = id_changer_nouveau;
     return map;
   }
 }

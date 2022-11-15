@@ -351,7 +351,7 @@ class DataTop1000 {
     List<Top1000> listes = [];
     Database db = await DatabaseHelper().database;
 
-    List<Map<String, dynamic>> result = await db.rawQuery("SELECT * FROM releve WHERE id_prep = ${id} AND etat_art = 0 AND prix_art_conc != 0 ");
+    List<Map<String, dynamic>> result = await db.rawQuery("SELECT * FROM releve WHERE id_prep = ${id} AND etat_art = 0 ");
     //List<Map<String, dynamic>> resulti = await db.query("Article", where: "", orderBy: "is ASC");
     result.forEach((MapElement) {
       Top1000 article = Top1000();
@@ -386,10 +386,30 @@ class DataTop1000 {
     return listes;
   }
 
-  Future UpdateReleve(Releve releve, int id_prep) async {
+  Future UpdateReleveExistante(Releve releve, int id_prep) async {
     Database db = await DatabaseHelper().database;
+    await db.update("releve", releve.toMapExistante(), where: " id_releve = ? AND id_prep = ?", whereArgs: [releve.id_releve, id_prep]);
+    etatPreparation(id_prep);
+  }
 
-    await db.update("releve", releve.toMap(), where: " id_releve = ? AND id_prep = ?", whereArgs: [releve.id_releve, id_prep]);
+  Future AjoutNouveauReleveExistante(Top1000 top, int id_prep) async {
+    Database db = await DatabaseHelper().database;
+    await db.insert("releve", top.toMapNouveauSiExiste());
+    etatPreparation(id_prep);
+  }
+
+  Future UpdateReleveNouveauNot_OU_Existante(Releve releve, int id_prep) async {
+    Database db = await DatabaseHelper().database;
+    await db.update("releve", releve.toMapUpdate(), where: " id_releve = ? AND id_prep = ?", whereArgs: [releve.id_releve, id_prep]);
+
+    etatPreparation(id_prep);
+  }
+
+  Future UpdateReleveRemplace(Releve releve, int id_prep, Releve releveAncien) async {
+    Database db = await DatabaseHelper().database;
+    await db.update("releve", releve.toMapRemplace(), where: " id_releve = ? AND id_prep = ?", whereArgs: [releve.id_releve, id_prep]);
+
+    await db.insert("change", releveAncien.toMapRemplaceInsert());
 
     etatPreparation(id_prep);
   }
@@ -402,27 +422,27 @@ class DataTop1000 {
   }
 
 // prix
-  Future AnnulerReleve(int id_releve, int id_prep) async {
+  Future AnnulerReleve(int id_releve, int id_nouv, int id_prep) async {
     Database db = await DatabaseHelper().database;
-    await db.rawUpdate("UPDATE releve SET prix_art_conc= 0  , date_maj_releve = '' WHERE id_releve = $id_releve AND id_prep = $id_prep ");
+    if (id_nouv == 0) {
+      await db.rawUpdate("UPDATE releve SET  prix_art_conc = 0 , date_maj_releve = '' WHERE id_releve = $id_releve AND id_prep = $id_prep ");
+    } else if (id_nouv == 1) {
+      Database db = await DatabaseHelper().database;
+      List<Map<String, dynamic>> result = await db.rawQuery("SELECT * FROM change WHERE id_releve = $id_releve AND id_prep = $id_prep   ");
+      //List<Map<String, dynamic>> resulti = await db.query("Article", where: "", orderBy: "is ASC");
+      result.forEach((MapElement) async {
+        await db.rawUpdate(
+            "UPDATE releve SET prix_art_conc= 0 , ref_art_conc = '${MapElement['ref_art_conc']}' , libelle_art_conc = '${MapElement['libelle_art_conc']}' , gencode_art_conc = '${MapElement['gencode_art_conc']}' , date_maj_releve = '' WHERE id_releve = $id_releve AND id_prep = $id_prep ");
+      });
+      await db.rawUpdate("DELETE FROM change WHERE id_releve = $id_releve AND id_prep = $id_prep ");
+    } else if (id_nouv == 2) {
+      await db.rawUpdate("DELETE FROM releve WHERE id_releve = $id_releve AND id_prep = $id_prep ");
+    } else {
+      await db.rawUpdate(
+          "UPDATE releve SET ref_art_conc = 0 , libelle_art_conc = '' , gencode_art_conc = '' , prix_art_conc = 0 , date_maj_releve = '' WHERE id_releve = $id_releve AND id_prep = $id_prep ");
+    }
+
     etatPreparation(id_prep);
-  }
-
-  Future<List<Top1000>> SearchAll(int id, String txt) async {
-    List<Top1000> listes = [];
-    Database db = await DatabaseHelper().database;
-
-    List<Map<String, dynamic>> result = await db.rawQuery(
-        "SELECT * FROM releve WHERE id_prep = ${id} AND (ref_art LIKE '%$txt%' OR libelle_art LIKE '%$txt%' OR gencode_art LIKE '%$txt%' OR prix_art LIKE '%$txt%' OR  date_val_releve LIKE '%$txt%' OR date_maj_releve LIKE '%$txt%' ) ");
-    //"SELECT * FROM releve WHERE id_prep = ${id} AND (ref_art LIKE '%$txt%' OR libelle_art LIKE '%$txt%' OR gencode_art LIKE '%$txt%' OR prix_art LIKE '%$txt%' OR ref_art_conc LIKE '%$txt%' OR libelle_art_conc LIKE '%$txt%' OR gencode_art_conc LIKE '%$txt%' OR prix_art_conc LIKE '%$txt%' OR date_val_releve LIKE '%$txt%' ) ");
-    //List<Map<String, dynamic>> resulti = await db.query("Article", where: "", orderBy: "is ASC");
-    result.forEach((MapElement) {
-      Top1000 article = Top1000();
-      article.fromMap(MapElement);
-      listes.add(article);
-    });
-
-    return listes;
   }
 
   Future<List<Top1000>> SearchAttente(int id, String txt) async {
@@ -430,7 +450,7 @@ class DataTop1000 {
     Database db = await DatabaseHelper().database;
 
     List<Map<String, dynamic>> result = await db.rawQuery(
-        "SELECT * FROM releve WHERE id_prep = ${id} AND etat_art = 0 AND prix_art_conc != 0 AND (ref_art LIKE '%$txt%' OR libelle_art LIKE '%$txt%' OR gencode_art LIKE '%$txt%' OR prix_art LIKE '%$txt%' OR  gencode_art_conc LIKE '%$txt%' OR  date_val_releve LIKE '%$txt%' OR  date_maj_releve LIKE '%$txt%' )  ");
+        "SELECT * FROM releve WHERE id_prep = ${id} AND etat_art = 0 AND (ref_art LIKE '%$txt%' OR libelle_art LIKE '%$txt%' OR gencode_art LIKE '%$txt%' OR prix_art LIKE '%$txt%' OR  gencode_art_conc LIKE '%$txt%' OR libelle_art_conc LIKE '%$txt%' OR  date_val_releve LIKE '%$txt%' OR  date_maj_releve LIKE '%$txt%' )  ");
     //"SELECT * FROM releve WHERE id_prep = ${id} AND etat_art = 0 AND prix_art_conc != 0 AND (ref_art LIKE '%$txt%' OR libelle_art LIKE '%$txt%' OR gencode_art LIKE '%$txt%' OR prix_art LIKE '%$txt%' OR ref_art_conc LIKE '%$txt%' OR libelle_art_conc LIKE '%$txt%' OR gencode_art_conc LIKE '%$txt%' OR prix_art_conc LIKE '%$txt%' OR date_val_releve LIKE '%$txt%' OR  date_maj_releve LIKE '%$txt%' )  ");
     //List<Map<String, dynamic>> resulti = await db.query("Article", where: "", orderBy: "is ASC");
     result.forEach((MapElement) {
@@ -447,7 +467,7 @@ class DataTop1000 {
     Database db = await DatabaseHelper().database;
 
     List<Map<String, dynamic>> result = await db.rawQuery(
-        "SELECT * FROM releve WHERE id_prep = ${id} AND etat_art = 1 AND (ref_art LIKE '%$txt%' OR libelle_art LIKE '%$txt%' OR gencode_art LIKE '%$txt%' OR prix_art LIKE '%$txt%' OR  date_val_releve LIKE '%$txt%' OR  date_maj_releve LIKE '%$txt%' ) ");
+        "SELECT * FROM releve WHERE id_prep = ${id} AND etat_art = 1 AND (ref_art LIKE '%$txt%' OR libelle_art LIKE '%$txt%' OR gencode_art LIKE '%$txt%' OR prix_art LIKE '%$txt%' OR   libelle_art_conc LIKE '%$txt%' OR date_val_releve LIKE '%$txt%' OR  date_maj_releve LIKE '%$txt%' ) ");
     // "SELECT * FROM releve WHERE id_prep = ${id} AND etat_art = 1 AND (ref_art LIKE '%$txt%' OR libelle_art LIKE '%$txt%' OR gencode_art LIKE '%$txt%' OR prix_art LIKE '%$txt%' OR ref_art_conc LIKE '%$txt%' OR libelle_art_conc LIKE '%$txt%' OR gencode_art_conc LIKE '%$txt%' OR prix_art_conc LIKE '%$txt%' OR date_val_releve LIKE '%$txt%' OR  date_maj_releve LIKE '%$txt%' ) ");
     //List<Map<String, dynamic>> resulti = await db.query("Article", where: "", orderBy: "is ASC");
     result.forEach((MapElement) {

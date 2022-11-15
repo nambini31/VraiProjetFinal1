@@ -21,29 +21,30 @@ class DataPreparation {
     Database db = await DatabaseHelper().database;
     await db.delete("preparation", where: "id_prep = ?", whereArgs: [id]);
     await db.delete("releve", where: "id_prep = ?", whereArgs: [id]);
+    await db.delete("change", where: "id_prep = ?", whereArgs: [id]);
     //await db.rawDelete("DELETE FROM Article");
   }
 
-  Future<List<Preparation>> SelectAll() async {
-    List<Preparation> listes = [];
-    Database db = await DatabaseHelper().database;
-    List<Map<String, dynamic>> result = await db.rawQuery(
-        "SELECT preparation.*,enseigne.design_enseigne,zone.libelle_zone FROM enseigne INNER JOIN preparation  ON preparation.id_enseigne = enseigne.id_enseigne INNER JOIN zone ON preparation.id_zone = zone.id_zone ");
-    //List<Map<String, dynamic>> resulti = await db.query("Article", where: "", orderBy: "is ASC");
-    result.forEach((MapElement) {
-      Preparation article = Preparation();
-      article.fromMap(MapElement);
-      listes.add(article);
-    });
+  // Future<List<Preparation>> SelectAll() async {
+  //   List<Preparation> listes = [];
+  //   Database db = await DatabaseHelper().database;
+  //   List<Map<String, dynamic>> result = await db.rawQuery(
+  //       "SELECT preparation.*,enseigne.design_enseigne,zone.libelle_zone FROM enseigne INNER JOIN preparation  ON preparation.id_enseigne = enseigne.id_enseigne INNER JOIN zone ON preparation.id_zone = zone.id_zone ");
+  //   //List<Map<String, dynamic>> resulti = await db.query("Article", where: "", orderBy: "is ASC");
+  //   result.forEach((MapElement) {
+  //     Preparation article = Preparation();
+  //     article.fromMap(MapElement);
+  //     listes.add(article);
+  //   });
 
-    return listes;
-  }
+  //   return listes;
+  // }
 
   Future<List<Preparation>> SelectAttente() async {
     List<Preparation> listes = [];
     Database db = await DatabaseHelper().database;
     List<Map<String, dynamic>> result = await db.rawQuery(
-        "SELECT preparation.*,enseigne.design_enseigne,zone.libelle_zone FROM enseigne INNER JOIN preparation  ON preparation.id_enseigne = enseigne.id_enseigne INNER JOIN zone ON preparation.id_zone = zone.id_zone WHERE etat_attente = 1 AND etat = 0");
+        "SELECT preparation.*,enseigne.design_enseigne,zone.libelle_zone FROM enseigne INNER JOIN preparation  ON preparation.id_enseigne = enseigne.id_enseigne INNER JOIN zone ON preparation.id_zone = zone.id_zone WHERE  etat = 0");
     //List<Map<String, dynamic>> resulti = await db.query("Article", where: "", orderBy: "is ASC");
     result.forEach((MapElement) {
       Preparation article = Preparation();
@@ -84,26 +85,11 @@ class DataPreparation {
     return listes;
   }
 
-  Future<List<Preparation>> SearchAll(String txt) async {
-    List<Preparation> listes = [];
-    Database db = await DatabaseHelper().database;
-    List<Map<String, dynamic>> result = await db.rawQuery(
-        "SELECT preparation.*,enseigne.design_enseigne,zone.libelle_zone FROM enseigne INNER JOIN preparation  ON preparation.id_enseigne = enseigne.id_enseigne INNER JOIN zone ON preparation.id_zone = zone.id_zone   AND (preparation.libelle_prep LIKE '%$txt%' OR preparation.description LIKE '%$txt%' OR preparation.date_prep LIKE '%$txt%' OR preparation.date_maj_prep LIKE '%$txt%' OR enseigne.design_enseigne LIKE '%$txt%' OR zone.libelle_zone LIKE '%$txt%')  ");
-    //List<Map<String, dynamic>> resulti = await db.query("Article", where: "", orderBy: "is ASC");
-    result.forEach((MapElement) {
-      Preparation article = Preparation();
-      article.fromMap(MapElement);
-      listes.add(article);
-    });
-
-    return listes;
-  }
-
   Future<List<Preparation>> SearchAttente(String txt) async {
     List<Preparation> listes = [];
     Database db = await DatabaseHelper().database;
     List<Map<String, dynamic>> result = await db.rawQuery(
-        "SELECT preparation.*,enseigne.design_enseigne,zone.libelle_zone FROM enseigne INNER JOIN preparation  ON preparation.id_enseigne = enseigne.id_enseigne INNER JOIN zone ON preparation.id_zone = zone.id_zone WHERE etat_attente = 1 AND etat = 0   AND (preparation.libelle_prep LIKE '%$txt%' OR preparation.description LIKE '%$txt%' OR preparation.date_prep LIKE '%$txt%' OR preparation.date_maj_prep LIKE '%$txt%' OR enseigne.design_enseigne LIKE '%$txt%' OR zone.libelle_zone LIKE '%$txt%') ");
+        "SELECT preparation.*,enseigne.design_enseigne,zone.libelle_zone FROM enseigne INNER JOIN preparation  ON preparation.id_enseigne = enseigne.id_enseigne INNER JOIN zone ON preparation.id_zone = zone.id_zone WHERE etat = 0   AND (preparation.libelle_prep LIKE '%$txt%' OR preparation.description LIKE '%$txt%' OR preparation.date_prep LIKE '%$txt%' OR preparation.date_maj_prep LIKE '%$txt%' OR enseigne.design_enseigne LIKE '%$txt%' OR zone.libelle_zone LIKE '%$txt%') ");
     //List<Map<String, dynamic>> resulti = await db.query("Article", where: "", orderBy: "is ASC");
     result.forEach((MapElement) {
       Preparation article = Preparation();
@@ -166,12 +152,12 @@ class DataPreparation {
               (element["lib_art_concur_rel"] == null) ? "" : element["lib_art_concur_rel"],
               (element["gc_concur_rel"] == null) ? "" : element["gc_concur_rel"],
               0,
-              (element["etat_rel"] == null) ? 0 : int.parse(element["etat_rel"]),
               "",
               "",
               int.parse(
                 element["num_rel_rel"],
               ),
+              (element["etat_rel"] == null) ? 0 : int.parse(element["etat_rel"]),
               0);
 
           try {
@@ -179,7 +165,7 @@ class DataPreparation {
           } catch (e) {}
         });
       } else {
-        //print("dat non recu");
+        ////print("dat non recu");
       }
     } catch (e) {
       //print('connecx timeout');
@@ -209,7 +195,7 @@ class DataPreparation {
           } catch (e) {}
         });
       } else {
-        //print("dat non recu");
+        ////print("dat non recu");
       }
     } catch (e) {
       //print('connecx timeout');
@@ -239,7 +225,7 @@ class DataPreparation {
           } catch (e) {}
         });
       } else {
-        //print("dat non recu");
+        ////print("dat non recu");
       }
     } catch (e) {
       //print('connecx timeout');
@@ -288,21 +274,16 @@ class DataPreparation {
 //tomysql
           try {
             await db.insert("preparation", prepa.toMap());
-            print(prepa.description);
           } catch (e) {
             await db.rawUpdate(
                 "UPDATE preparation SET etat = ${int.parse(element["etat_rel"])} , date_maj_prep = '${element["dt_maj_releve"]}' WHERE id_prep = ${int.parse(element["id_releve"])} ");
           }
 
           DataTop1000().etatPreparationCharger(int.parse(element["id_releve"]));
-          // if (nbrTopfini! > 0 && nbrTopNon! > 0) {
-          //   await db.rawUpdate(
-          //       "UPDATE preparation SET etat = 0 , etat_Attente = 1 , date_maj_prep = '${DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now())}' WHERE id_prep = ${int.parse(element["id_releve"])} ");
-          // } else {}
           EasyLoading.showSuccess('Success!', dismissOnTap: true);
         });
       } else {
-        //print("dat non recu");
+        ////print("dat non recu");
 
       }
     } catch (e) {
@@ -363,7 +344,7 @@ class DataPreparation {
         await db.rawUpdate("UPDATE preparation SET etat = 2  WHERE id_prep = $id_prep ");
         await EasyLoading.dismiss();
       } catch (e) {
-        print("roa" + e.toString());
+        //print("roa" + e.toString());
         EasyLoading.showError('Connection error',
             duration: Duration(
               seconds: 2,

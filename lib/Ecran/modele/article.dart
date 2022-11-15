@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 class Article {
   int _id = 1;
   Article();
@@ -9,6 +11,11 @@ class Article {
   double _prix = 0;
 
   String _gencode = "";
+  String _design_enseigne = "";
+
+  String get design_enseigne => this._design_enseigne;
+
+  set design_enseigne(String value) => this._design_enseigne = value;
 
   String get gencode => this._gencode;
 
@@ -55,6 +62,7 @@ class Article {
     image = map["image"];
     gencode = map["gencode"];
     description = map["description"];
+    design_enseigne = map["design_enseigne"];
   }
 
   Map<String, dynamic> toMap() {
