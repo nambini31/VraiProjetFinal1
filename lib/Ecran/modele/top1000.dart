@@ -25,11 +25,11 @@ class Top1000 {
   String _date_maj_releve = "";
   int _id_prep = 0;
 
-  int id_changer_nouveau = 0;
+  int _id_changer_nouveau = 0;
 
-  get idchanger_nouveau => this.id_changer_nouveau;
+  get id_changer_nouveau => this._id_changer_nouveau;
 
-  set idchanger_nouveau(value) => this.id_changer_nouveau = value;
+  set id_changer_nouveau(value) => this._id_changer_nouveau = value;
 
   Top1000();
   Top1000.id(
@@ -46,7 +46,7 @@ class Top1000 {
       this._date_val_releve,
       this._id_prep,
       this._etat_art,
-      this.id_changer_nouveau);
+      this._id_changer_nouveau);
 
   get date_maj_releve => this._date_maj_releve;
 

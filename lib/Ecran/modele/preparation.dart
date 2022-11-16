@@ -14,7 +14,9 @@ class Preparation {
   set libelle_zone(value) => this._libelle_zone = value;
 
   int _etat = 0;
+
   int _etat_attente = 0;
+
   int _id_zone = 0;
 
   get id_zone => this._id_zone;
@@ -26,6 +28,7 @@ class Preparation {
   get date_maj_prep => this._date_maj_prep;
 
   set date_maj_prep(value) => this._date_maj_prep = value;
+
   get etat_attente => this._etat_attente;
 
   set etat_attente(value) => this._etat_attente = value;

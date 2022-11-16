@@ -17,5 +17,5 @@ if (isset($_POST['etat']) && $_POST['etat'] != null) {
     } else {
     }
 
-    echo json_encode($list);
+    echo json_encode($list, JSON_UNESCAPED_UNICODE);
 }

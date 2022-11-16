@@ -43,7 +43,7 @@ class _IndexState extends State<Index> {
 
   Top1000 top1000_ajout_modif = Top1000();
 
-  String ip = "197.7.2.241";
+  String ip = "197.7.2.247";
 
   int idPage = 0;
   String NomPagePrep = "";
@@ -159,7 +159,7 @@ class _IndexState extends State<Index> {
                                   });
                                 } else if (ajout_article == false && modif_article == true) {
                                   Navigator.pop(context);
-                                  print("$libele, $prix, $gencode, $description, $id_enseigne");
+                                  //print("$libele, $prix, $gencode, $description, $id_enseigne");
                                   Article article = Article.modif(id_art_modif, libele, prix, gencode, description, imageString, id_enseigne);
                                   DataArticle().UpdateArticle(article);
                                   setState(() {
@@ -193,10 +193,10 @@ class _IndexState extends State<Index> {
         // final imgString = imgbytes.base
         imageString = base64Encode(fichierImage!.readAsBytesSync());
       });
-      // ////print("lien :$pathImage");
+      // //////print("lien :$pathImage");
 
     } else {
-      ////print("image null");
+      //////print("image null");
     }
   }
 
@@ -299,7 +299,7 @@ class _IndexState extends State<Index> {
 
   void ChargerDrowpMagasin() async {
     listeItem.forEach((element) {
-      ////print(element.design_enseigne);
+      //////print(element.design_enseigne);
       listesvraiArticle.add(DropdownMenuItem(
         value: element.id_enseigne.toString(),
         child: Text(element.design_enseigne),
@@ -327,7 +327,7 @@ class _IndexState extends State<Index> {
       if (top1000_ajout_modif.ref_art_conc.toString().isEmpty || top1000_ajout_modif.ref_art_conc == '0') {
         if (formValideNotExistante.currentState!.validate()) {
           if (pad == 0) {
-            //print("Collecte");
+            ////print("Collecte");
             valideFormAjout(1, "Ajout nouveau concurent");
             recuperer(idPage);
           }
@@ -336,20 +336,20 @@ class _IndexState extends State<Index> {
         if (listesvrai.length == 1) {
           if (formValideNotExistante.currentState!.validate()) {
             if (pad == 0) {
-              //print("nouveau");
+              ////print("nouveau");
               valideFormAjout(2, "Ajout nouveau concurent");
             }
           }
         } else {
           if (id_choix == 1) {
             if (formValideExistante.currentState!.validate()) {
-              //print("update");
+              ////print("update");
               valideFormAjout(0, "Ajout relever");
             }
           } else {
             if (formValideNotExistante.currentState!.validate()) {
               if (id_choix == 2 && pad == 0) {
-                //print("remplacer");
+                ////print("remplacer");
                 valideFormAjout(3, "Changer l'article concurent");
               }
             }
@@ -507,15 +507,15 @@ class _IndexState extends State<Index> {
         }));
   }
 
+////print
   @override
   void initState() {
     super.initState();
     setState(() {
       add_releve = false;
       id_choix = 1;
+      recuperer(idPage);
     });
-
-    recuperer(idPage);
   }
 
   void onItemTap(int Index) {
@@ -550,7 +550,7 @@ class _IndexState extends State<Index> {
     });
 
     await DataArticle().SelectAll().then((value) {
-      //////print(object)
+      ////////print(object)
       setState(() {
         listesNewArt = value;
       });
@@ -558,59 +558,58 @@ class _IndexState extends State<Index> {
 
     if (idPage == 0) {
       await DataPreparation().SelectAttente().then((value) {
-        // ////print()
         setState(() {
           listesAttente = value;
         });
       });
       await DataPreparation().SelectValider().then((value) {
-        // ////print()
+        // //////print()
         setState(() {
           listesValider = value;
         });
       });
       await DataPreparation().SelectTransferer().then((value) {
-        // ////print()
+        // //////print()
         setState(() {
           listesTransferer = value;
         });
       });
     } else {
-      //print("id = $idPage");
+      ////print("id = $idPage");
       await DataTop1000().SelectAttente(idPage).then((value) {
-        //////print()
+        ////////print()
         setState(() {
           listesAttenteTop = value;
         });
       });
       await DataTop1000().SelectValider(idPage).then((value) {
-        //////print()
+        ////////print()
         setState(() {
           listesValiderTop = value;
         });
       });
     }
-  } // ////print
+  } // //////print
 
   Future search(String txt) async {
     if (idPage == 0) {
       if (i == 0) {
         await DataPreparation().SearchAttente(txt).then((value) {
-          // ////print()
+          // //////print()
           setState(() {
             listesAttente = value;
           });
         });
       } else if (i == 1) {
         await DataPreparation().SearchValider(txt).then((value) {
-          // ////print()
+          // //////print()
           setState(() {
             listesValider = value;
           });
         });
       } else {
         await DataPreparation().SearchTransferer(txt).then((value) {
-          // ////print()
+          // //////print()
           setState(() {
             listesTransferer = value;
           });
@@ -619,14 +618,14 @@ class _IndexState extends State<Index> {
     } else {
       if (i == 0) {
         await DataTop1000().SearchAttente(idPage, txt).then((value) {
-          //////print()
+          ////////print()
           setState(() {
             listesAttenteTop = value;
           });
         });
       } else {
         await DataTop1000().SearchValider(idPage, txt).then((value) {
-          //////print()
+          ////////print()
           setState(() {
             listesValiderTop = value;
           });
@@ -641,8 +640,6 @@ class _IndexState extends State<Index> {
     //}
   }
 
-////print
-//focus
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -784,6 +781,7 @@ class _IndexState extends State<Index> {
             setState(() {
               id_enseigne = listeItem[0].id_enseigne;
               ajout_article = true;
+              idPage = 0;
             });
           },
           icon: Icon(Icons.add),
@@ -794,9 +792,8 @@ class _IndexState extends State<Index> {
         IconButton(
             onPressed: () async {
               await DataPreparation().Charger(ip);
-              setState(() {
-                recuperer(idPage);
-              });
+
+              onItemTap(1);
             },
             icon: Icon(Icons.get_app_sharp))
       ];
@@ -804,7 +801,7 @@ class _IndexState extends State<Index> {
   }
 
   Widget CorpsPages(int iPage) {
-    //print(" $add_releve  $idPage $modif_releve");
+    ////print(" $add_releve  $idPage $modif_releve");
 
     if (iPage == 0) {
       setState(() {
@@ -912,23 +909,35 @@ class _IndexState extends State<Index> {
 
   TabBarView TabBarAffichage(int idPage) {
     if (idPage == 0) {
-      return TabBarView(physics: BouncingScrollPhysics(), children: [
-        preparationAttente(),
-        preparationValider(),
-        preparationTransferer(),
-      ]);
+      return TabBarView(
+          //physics: BouncingScrollPhysics()
+          children: [
+            preparationAttente(),
+            preparationValider(),
+            preparationTransferer(),
+          ]);
     } else {
-      return TabBarView(physics: BouncingScrollPhysics(), children: [
-        Attente(),
-        Valide(),
-      ]);
+      return TabBarView(
+          //  physics: BouncingScrollPhysics()
+          children: [
+            Attente(),
+            Valide(),
+          ]);
     }
   }
 
-  Icon icone({int? etat, int? etat_attente, double? prix}) {
+  Icon icone({int? etat, int? etat_attente, double? prix, int? id_nouv}) {
     var iconValide = Icon(
       Icons.radio_button_checked_rounded,
       color: Colors.green,
+    );
+    var iconNouveau = Icon(
+      Icons.radio_button_checked_rounded,
+      color: Colors.blue,
+    );
+    var iconRemplacer = Icon(
+      Icons.radio_button_checked_rounded,
+      color: Colors.redAccent,
     );
 
     var iconNon = Icon(
@@ -941,8 +950,8 @@ class _IndexState extends State<Index> {
       color: Colors.orange,
     );
     var iconTransferer = Icon(
-      Icons.check_circle,
-      color: Colors.blue,
+      Icons.checklist_outlined,
+      color: Colors.green,
       size: 30,
     );
     if (idPage == 0) {
@@ -958,6 +967,12 @@ class _IndexState extends State<Index> {
       if (etat == 1) {
         return iconValide;
       } else if (etat == 0 && prix != 0) {
+        //print(id_nouv.toString());
+        if (id_nouv == 2) {
+          return iconNouveau;
+        } else if (id_nouv == 1) {
+          return iconRemplacer;
+        }
         return iconAttente;
       } else {
         return iconNon;
@@ -1176,17 +1191,17 @@ class _IndexState extends State<Index> {
       return endPrep;
     } else {
       if (top1000!.etat_art == 1) {
-        //print("gen valide");
+        ////print("gen valide");
         return null;
       } else if (top1000.etat_art == 0 && top1000.prix_art_conc != 0) {
-        //print("gen attente ");
+        ////print("gen attente ");
         return endTop;
       } else {
         if (top1000.ref_art_conc.toString().isEmpty || top1000.ref_art_conc.toString() == "0") {
-          //print("gen collecte");
+          ////print("gen collecte");
           return null;
         } else {
-          //print("gen non nul");
+          ////print("gen non nul");
           return endtopplus;
         }
       }
@@ -1535,10 +1550,10 @@ class _IndexState extends State<Index> {
         child: (listesAttente.isEmpty)
             ? AucuneDonnes()
             : ListView.builder(
-                physics: BouncingScrollPhysics(),
                 itemCount: listesAttente.length,
                 itemBuilder: (context, index) {
                   Preparation prep = listesAttente[index];
+                  //print(listesAttente.length);
                   return SingleChildScrollView(
                     padding: EdgeInsets.only(top: 10),
                     child: Slidable(
@@ -1571,7 +1586,8 @@ class _IndexState extends State<Index> {
         child: (listesValider.isEmpty)
             ? AucuneDonnes()
             : ListView.builder(
-                physics: BouncingScrollPhysics(),
+                //physics: BouncingScrollPhysics()
+                //,
                 itemCount: listesValider.length,
                 itemBuilder: (context, index) {
                   Preparation prep = listesValider[index];
@@ -1607,7 +1623,8 @@ class _IndexState extends State<Index> {
         child: (listesTransferer.isEmpty)
             ? AucuneDonnes()
             : ListView.builder(
-                physics: BouncingScrollPhysics(),
+                //physics: BouncingScrollPhysics()
+                //,
                 itemCount: listesTransferer.length,
                 itemBuilder: (context, index) {
                   Preparation prep = listesTransferer[index];
@@ -1643,7 +1660,8 @@ class _IndexState extends State<Index> {
         child: (listesAttenteTop.isEmpty)
             ? AucuneDonnes()
             : ListView.builder(
-                physics: BouncingScrollPhysics(),
+                //physics: BouncingScrollPhysics()
+                //,
                 itemCount: listesAttenteTop.length,
                 itemBuilder: (context, index) {
                   Top1000 top1000 = listesAttenteTop[index];
@@ -1665,7 +1683,7 @@ class _IndexState extends State<Index> {
 
                           TypeChoix(top1000.ref_art_conc);
                           setState(() {
-                            //print(id_choix);
+                            ////print(id_choix);
                             add_releve = true;
                           });
                         }
@@ -1679,7 +1697,7 @@ class _IndexState extends State<Index> {
                         size: 40,
                         color: Colors.green,
                       ),
-                      trailing: icone(etat: top1000.etat_art, prix: top1000.prix_art_conc),
+                      trailing: icone(etat: top1000.etat_art, prix: top1000.prix_art_conc, id_nouv: top1000.id_changer_nouveau),
                     ),
                   ));
                 }),
@@ -1710,7 +1728,6 @@ class _IndexState extends State<Index> {
           child: (listesValiderTop.isEmpty)
               ? AucuneDonnes()
               : ListView.builder(
-                  physics: BouncingScrollPhysics(),
                   itemCount: listesValiderTop.length,
                   itemBuilder: (context, index) {
                     Top1000 top1000 = listesValiderTop[index];
@@ -1732,7 +1749,7 @@ class _IndexState extends State<Index> {
 
                             TypeChoix(top1000.ref_art_conc);
                             setState(() {
-                              //print(id_choix);
+                              ////print(id_choix);
                               add_releve = true;
                             });
                           }
@@ -1746,7 +1763,7 @@ class _IndexState extends State<Index> {
                           size: 40,
                           color: Colors.green,
                         ),
-                        trailing: icone(etat: top1000.etat_art, prix: top1000.prix_art_conc),
+                        trailing: icone(etat: top1000.etat_art, prix: top1000.prix_art_conc, id_nouv: top1000.id_changer_nouveau),
                       ),
                     ));
                   }),
@@ -1862,7 +1879,8 @@ class _IndexState extends State<Index> {
 
   SingleChildScrollView Formulaire(Top1000 top1000, BuildContext context) {
     return SingleChildScrollView(
-      physics: BouncingScrollPhysics(),
+      //physics: BouncingScrollPhysics()
+      //,
       child: Column(
         children: [
           (end == false)
@@ -1899,14 +1917,14 @@ class _IndexState extends State<Index> {
         return FormNotExiste(context);
       } else {
         if (top1000_ajout_modif.ref_art_conc.toString().isEmpty || top1000_ajout_modif.ref_art_conc == '0') {
-          //print("not existe");
+          ////print("not existe");
           return FormNotExiste(context);
         } else {
           if (id_choix == 1) {
-            //print("choisit 1 ");
+            ////print("choisit 1 ");
             return FormExiste(context);
           } else {
-            //print('choisit autre');
+            ////print('choisit autre');
             return FormNotExiste(context);
           }
         }
@@ -1938,7 +1956,7 @@ class _IndexState extends State<Index> {
             hint: Text("Choix Concurent"),
             onChanged: (value) {
               FocusScope.of(context);
-              //print(top1000_ajout_modif.ref_art_conc);
+              ////print(top1000_ajout_modif.ref_art_conc);
               if (id_choix == int.parse(value.toString())) {
               } else {
                 ViderChamps();
@@ -1946,7 +1964,7 @@ class _IndexState extends State<Index> {
               setState(() {
                 id_choix = int.parse(value.toString());
               });
-              //print(id_choix);
+              ////print(id_choix);
             },
             decoration: InputDecoration(
               contentPadding: EdgeInsets.all(12),
@@ -1999,7 +2017,7 @@ class _IndexState extends State<Index> {
               onChanged: (value) {},
 
               onTap: () {
-                //print("none");
+                ////print("none");
               },
 
               onSaved: (newValue) {
@@ -2039,7 +2057,7 @@ class _IndexState extends State<Index> {
               },
 
               onTap: () {
-                //print("none");
+                ////print("none");
               },
 
               onSaved: (newValue) {
@@ -2081,7 +2099,7 @@ class _IndexState extends State<Index> {
                 //libele = value;
               },
               onTap: () {
-                ////print(valeur);
+                //////print(valeur);
               },
               validator: (value) => value!.isEmpty ? "Veuillez entrer le prix" : null,
               onSaved: (newValue) {
@@ -2193,7 +2211,7 @@ class _IndexState extends State<Index> {
                     //libele = value;
                   },
                   onTap: () {
-                    ////print(valeur);
+                    //////print(valeur);
                   },
                   validator: (value) => value!.isEmpty ? "Veuillez entrer la designation" : null,
                   onSaved: (newValue) {
@@ -2253,7 +2271,7 @@ class _IndexState extends State<Index> {
                         onChanged: (value) {},
 
                         onTap: () {
-                          //print("none");
+                          ////print("none");
                         },
 
                         onSaved: (newValue) {
@@ -2299,7 +2317,7 @@ class _IndexState extends State<Index> {
                 //libele = value;
               },
               onTap: () {
-                ////print(valeur);
+                //////print(valeur);
               },
               validator: (value) => value!.isEmpty ? "Veuillez entrer le prix" : null,
               onSaved: (newValue) {
@@ -2313,7 +2331,8 @@ class _IndexState extends State<Index> {
 
   SingleChildScrollView AjoutNouveauArticle() {
     return SingleChildScrollView(
-      physics: BouncingScrollPhysics(),
+      //physics: BouncingScrollPhysics()
+      //,
       child: Container(
         padding: EdgeInsets.all(30),
         child: Form(
@@ -2380,11 +2399,11 @@ class _IndexState extends State<Index> {
                   onChanged: (value) {
                     setState(() {
                       libele = value;
-                      print(value);
+                      //print(value);
                     });
                   },
                   onTap: () {
-                    //////print(valeur);
+                    ////////print(valeur);
                   },
                   validator: (value) => value!.isEmpty ? "Veuillez entrer la designation" : null,
                   onSaved: (newValue) {
@@ -2422,7 +2441,7 @@ class _IndexState extends State<Index> {
                       try {
                         prix = double.parse(value);
                       } catch (e) {
-                        ////print("null prix");
+                        //////print("null prix");
                       }
                     });
                   },
@@ -2518,7 +2537,7 @@ class _IndexState extends State<Index> {
                         },
 
                         onTap: () {
-                          print("none");
+                          //print("none");
                         },
 
                         onSaved: (newValue) {
@@ -2648,7 +2667,8 @@ class _IndexState extends State<Index> {
           child: (listesNewArt.isEmpty)
               ? AucuneDonnes()
               : ListView.builder(
-                  physics: BouncingScrollPhysics(),
+                  //physics: BouncingScrollPhysics()
+                  //,
                   itemCount: listesNewArt.length,
                   itemBuilder: (context, index) {
                     Article article = listesNewArt[index];
@@ -2796,7 +2816,7 @@ class _IndexState extends State<Index> {
     if (description == "") {
       div = 2.91;
     }
-    print(div);
+    //print(div);
     return showDialog(
         context: context,
         barrierDismissible: true,

@@ -22,7 +22,10 @@ class DataPreparation {
     await db.delete("preparation", where: "id_prep = ?", whereArgs: [id]);
     await db.delete("releve", where: "id_prep = ?", whereArgs: [id]);
     await db.delete("change", where: "id_prep = ?", whereArgs: [id]);
-    //await db.rawDelete("DELETE FROM Article");
+    // await db.rawDelete("DELETE FROM releve");
+    // await db.rawDelete("DELETE FROM preparation");
+    // await db.rawDelete("DELETE FROM enseigne");
+    // await db.rawDelete("DELETE FROM change");
   }
 
   // Future<List<Preparation>> SelectAll() async {
@@ -44,7 +47,7 @@ class DataPreparation {
     List<Preparation> listes = [];
     Database db = await DatabaseHelper().database;
     List<Map<String, dynamic>> result = await db.rawQuery(
-        "SELECT preparation.*,enseigne.design_enseigne,zone.libelle_zone FROM enseigne INNER JOIN preparation  ON preparation.id_enseigne = enseigne.id_enseigne INNER JOIN zone ON preparation.id_zone = zone.id_zone WHERE  etat = 0");
+        "SELECT preparation.*,enseigne.design_enseigne,zone.libelle_zone FROM enseigne , preparation , zone  WHERE preparation.id_enseigne = enseigne.id_enseigne AND preparation.id_zone = zone.id_zone AND preparation.etat != 1");
     //List<Map<String, dynamic>> resulti = await db.query("Article", where: "", orderBy: "is ASC");
     result.forEach((MapElement) {
       Preparation article = Preparation();
@@ -132,7 +135,7 @@ class DataPreparation {
 
   Future chargeArticle(String ip) async {
     Database db = await DatabaseHelper().database;
-    //await db.rawDelete("DELETE FROM releve");
+    //await db.rawDelete("DELETE FROM enseigne");
     List produitlist = [];
 
     try {
@@ -174,7 +177,7 @@ class DataPreparation {
 
   Future chargeMagasin(String ip) async {
     Database db = await DatabaseHelper().database;
-    //await db.rawDelete("DELETE FROM releve");
+    await db.rawDelete("DELETE FROM enseigne");
     List produitlist = [];
 
     try {
@@ -186,8 +189,8 @@ class DataPreparation {
         produitlist.forEach((element) async {
           Item top = Item.id(
             int.parse(element["enseigne_ens"]),
-            (element["libelle_ens"] == null) ? "" : element["libelle_ens"],
-            (element["lib_plus_ens"] == null) ? "" : element["lib_plus_ens"],
+            (element["libelle_ens"].toString() == null) ? "" : utf8.decode(utf8.encode(element["libelle_ens"])),
+            (element["lib_plus_ens"].toString() == null) ? "" : element["lib_plus_ens"],
           );
 
           try {
@@ -195,10 +198,10 @@ class DataPreparation {
           } catch (e) {}
         });
       } else {
-        ////print("dat non recu");
+        print("dat non recu");
       }
     } catch (e) {
-      //print('connecx timeout');
+      print('connecx timeout');
     }
   }
 
@@ -258,6 +261,7 @@ class DataPreparation {
         chargeMagasin(ip);
         chargeZone(ip);
         chargeArticle(ip);
+
         produitlist = json.decode(response4.body);
 
         produitlist.forEach((element) async {

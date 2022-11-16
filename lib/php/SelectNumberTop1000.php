@@ -15,4 +15,4 @@ if ($reqVerifierTop1000->num_rows > 0) {
     $list = [0];
 }
 
-echo json_encode($list);
+echo json_encode($list, JSON_UNESCAPED_UNICODE);

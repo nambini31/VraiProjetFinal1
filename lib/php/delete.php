@@ -10,7 +10,7 @@ if (isset($pass) && !empty($pass)) {
 
     $req = $conn->query("DELETE from client WHERE idclient = '$pass' ");
 
-    echo json_encode($list);
+    echo json_encode($list, JSON_UNESCAPED_UNICODE);
 } else {
     # code...
 }
